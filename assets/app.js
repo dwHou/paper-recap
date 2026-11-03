@@ -19,121 +19,7 @@
     imageDialogCaption: document.querySelector("#image-dialog-caption"),
   };
 
-  const escapeHtml = (value = "") => String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-
-  function inlineMarkdown(text) {
-    return escapeHtml(text)
-      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-      .replace(/\*(.+?)\*/g, "<em>$1</em>")
-      .replace(/`([^`]+)`/g, "<code>$1</code>")
-      .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
-  }
-
-  function renderMarkdown(markdown = "") {
-    const lines = markdown.replace(/\r/g, "").split("\n");
-    const output = [];
-    let listType = null;
-    let displayMath = null;
-    const closeList = () => { if (listType) output.push(`</${listType}>`); listType = null; };
-    const tableCells = (value) => value.trim()
-      .replace(/^\|/, "")
-      .replace(/\|$/, "")
-      .split("|")
-      .map((cell) => cell.trim());
-    const isTableDivider = (value) => {
-      const cells = tableCells(value);
-      return cells.length > 1 && cells.every((cell) => /^:?-{3,}:?$/.test(cell));
-    };
-
-    for (let lineIndex = 0; lineIndex < lines.length; lineIndex += 1) {
-      const raw = lines[lineIndex];
-      const line = raw.trim();
-      if (displayMath !== null) {
-        displayMath.push(raw);
-        if (line.endsWith("$$")) {
-          output.push(`<div class="math-block">${escapeHtml(displayMath.join("\n"))}</div>`);
-          displayMath = null;
-        }
-        continue;
-      }
-      if (line.startsWith("$$")) {
-        closeList();
-        if (line.length > 2 && line.endsWith("$$")) output.push(`<div class="math-block">${escapeHtml(line)}</div>`);
-        else displayMath = [raw];
-        continue;
-      }
-      if (!line) { closeList(); continue; }
-      if (line.includes("|") && lineIndex + 1 < lines.length && isTableDivider(lines[lineIndex + 1])) {
-        closeList();
-        const headers = tableCells(line);
-        const dividers = tableCells(lines[lineIndex + 1]);
-        const alignments = dividers.map((cell) => {
-          if (cell.startsWith(":") && cell.endsWith(":")) return "center";
-          if (cell.endsWith(":")) return "right";
-          return "left";
-        });
-        const rows = [];
-        let rowIndex = lineIndex + 2;
-        while (rowIndex < lines.length) {
-          const row = lines[rowIndex].trim();
-          if (!row || !row.includes("|")) break;
-          const cells = tableCells(row);
-          if (cells.length !== headers.length) break;
-          rows.push(cells);
-          rowIndex += 1;
-        }
-        const head = headers.map((cell, index) => `<th class="align-${alignments[index] || "left"}" scope="col">${inlineMarkdown(cell)}</th>`).join("");
-        const body = rows.map((cells) => `<tr>${cells.map((cell, index) => `<td class="align-${alignments[index] || "left"}">${inlineMarkdown(cell)}</td>`).join("")}</tr>`).join("");
-        output.push(`<div class="table-scroll"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`);
-        lineIndex = rowIndex - 1;
-        continue;
-      }
-      const image = line.match(/^!\[([^\]]+)\]\((media\/[^\s)"']+\.(?:png|jpe?g|webp))(?:\s+"([^"]+)")?\)$/i);
-      if (image) {
-        closeList();
-        const altText = image[1];
-        const imagePath = image[2];
-        const caption = image[3] || "";
-        output.push(`<figure class="paper-figure">
-          <button class="paper-image-button" type="button" data-image-src="${escapeHtml(imagePath)}" data-image-alt="${escapeHtml(altText)}" data-image-caption="${escapeHtml(caption)}" aria-label="放大查看：${escapeHtml(altText)}">
-            <img src="${escapeHtml(imagePath)}" alt="${escapeHtml(altText)}" loading="lazy" decoding="async" />
-          </button>
-          ${caption ? `<figcaption>${inlineMarkdown(caption)}</figcaption>` : ""}
-        </figure>`);
-        continue;
-      }
-      const heading = line.match(/^(##|###)\s+(.+)$/);
-      if (heading) {
-        closeList();
-        const level = heading[1].length;
-        output.push(`<h${level}>${inlineMarkdown(heading[2])}</h${level}>`);
-        continue;
-      }
-      const unordered = line.match(/^[-*]\s+(.+)$/);
-      if (unordered) {
-        if (listType !== "ul") { closeList(); listType = "ul"; output.push("<ul>"); }
-        output.push(`<li>${inlineMarkdown(unordered[1])}</li>`);
-        continue;
-      }
-      const ordered = line.match(/^\d+[.)]\s+(.+)$/);
-      if (ordered) {
-        if (listType !== "ol") { closeList(); listType = "ol"; output.push("<ol>"); }
-        output.push(`<li>${inlineMarkdown(ordered[1])}</li>`);
-        continue;
-      }
-      closeList();
-      if (line.startsWith("> ")) output.push(`<blockquote>${inlineMarkdown(line.slice(2))}</blockquote>`);
-      else output.push(`<p>${inlineMarkdown(line)}</p>`);
-    }
-    if (displayMath !== null) output.push(`<pre class="math-error">${escapeHtml(displayMath.join("\n"))}</pre>`);
-    closeList();
-    return output.join("");
-  }
+  const { escapeHtml, renderMarkdown } = window.PaperRecapMarkdown;
 
   function renderMath(container) {
     if (typeof window.renderMathInElement !== "function") return;
@@ -154,8 +40,10 @@
 
   function formatDate(value) {
     if (!value) return "日期未知";
+    const parsed = new Date(`${value}T00:00:00`);
+    if (Number.isNaN(parsed.getTime())) return "日期未知";
     return new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "short", day: "numeric" })
-      .format(new Date(`${value}T00:00:00`));
+      .format(parsed);
   }
 
   function syncDialogScrollLock() {
@@ -230,11 +118,11 @@
         const definition = tagDefinitions.get(key);
         return [key, definition?.label || "", ...(definition?.aliases || [])];
       });
-      const haystack = [paper.title, paper.authors, paper.venue, paper.one_liner, paper.body, ...(paper.search_terms || []), ...tagTerms].join(" ").toLocaleLowerCase();
+      const haystack = [paper.title, paper.display_title || "", paper.authors, paper.venue, paper.one_liner, paper.body, ...(paper.search_terms || []), ...tagTerms].join(" ").toLocaleLowerCase();
       return tagMatch && (!needle || haystack.includes(needle));
     });
     return filtered.sort((a, b) => {
-      if (state.sort === "title") return a.title.localeCompare(b.title);
+      if (state.sort === "title") return (a.display_title || a.title).localeCompare(b.display_title || b.title);
       return b.read_date.localeCompare(a.read_date)
         || (b.read_at || "").localeCompare(a.read_at || "")
         || a.title.localeCompare(b.title);
@@ -246,9 +134,9 @@
     return `<article class="paper-card">
       <button class="card-button" type="button" data-slug="${escapeHtml(paper.slug)}" aria-label="打开《${escapeHtml(paper.title)}》详情">
         <div class="card-top"><span class="status">${escapeHtml(paper.status)}</span><span>${formatDate(paper.read_date)}</span></div>
-        <h3>${escapeHtml(paper.title)}</h3>
+        <h3>${escapeHtml(paper.display_title || paper.title)}</h3>
         <p class="authors">${escapeHtml(paper.authors)}${paper.venue ? ` · ${escapeHtml(paper.venue)}` : ""}</p>
-        <p class="one-liner">${escapeHtml(paper.one_liner)}</p>
+        ${paper.one_liner ? `<p class="one-liner">${escapeHtml(paper.one_liner)}</p>` : ""}
       </button>
       <div class="card-bottom"><div class="card-tags">${tags}</div><button class="arrow" type="button" data-slug="${escapeHtml(paper.slug)}" aria-label="打开《${escapeHtml(paper.title)}》详情">↗</button></div>
     </article>`;
@@ -292,10 +180,11 @@
     if (!paper) return;
     elements.dialogContent.innerHTML = `
       <p class="detail-kicker">${escapeHtml(paper.status)} · ${formatDate(paper.read_date)}</p>
-      <h2 id="dialog-title">${escapeHtml(paper.title)}</h2>
+      <h2 id="dialog-title">${escapeHtml(paper.display_title || paper.title)}</h2>
+      ${paper.display_title && paper.display_title !== paper.title ? `<p class="detail-full-title">${escapeHtml(paper.title)}</p>` : ""}
       <div class="detail-meta"><span>${escapeHtml(paper.authors)}</span><span>${escapeHtml(paper.venue)}</span><span>${escapeHtml(paper.published)}</span></div>
       <div class="detail-tags" aria-label="相关主题">${paper.tags.map((tag) => `<button class="tag-button" type="button" data-tag="${escapeHtml(tag)}">${escapeHtml(tagLabel(tag))} ↗</button>`).join("")}</div>
-      <p class="detail-summary">${escapeHtml(paper.one_liner)}</p>
+      ${paper.one_liner ? `<p class="detail-summary">${escapeHtml(paper.one_liner)}</p>` : ""}
       <div class="detail-body">${renderMarkdown(paper.body)}</div>
       ${paper.paper_url ? `<a class="paper-link" href="${escapeHtml(paper.paper_url)}" target="_blank" rel="noopener">查看原论文 ↗</a>` : ""}`;
     renderMath(elements.dialogContent);

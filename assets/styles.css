@@ -147,6 +147,7 @@ dialog::backdrop { background: rgba(20, 19, 17, 0.65); backdrop-filter: blur(5px
 .dialog-close { position: absolute; top: 22px; right: 24px; width: 38px; height: 38px; border: 1px solid var(--line); border-radius: 50%; color: var(--ink); background: transparent; font-size: 1.45rem; line-height: 1; }
 .detail-kicker { margin: 0 0 16px; color: var(--accent); font-size: 0.74rem; font-weight: 750; letter-spacing: 0.12em; }
 .paper-detail h2 { max-width: 670px; margin: 0 0 18px; font-family: Georgia, "Songti SC", serif; font-size: clamp(2.2rem, 5vw, 4rem); font-weight: 400; line-height: 1.08; letter-spacing: -0.045em; }
+.detail-full-title { max-width: 720px; margin: -4px 0 22px; color: var(--muted); font-size: 0.95rem; line-height: 1.5; }
 .detail-meta { display: flex; flex-wrap: wrap; gap: 8px 20px; padding-bottom: 30px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 0.78rem; }
 .detail-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
 .detail-summary { margin: 34px 0; padding: 20px 23px; border-left: 3px solid var(--accent); background: var(--accent-soft); font-family: Georgia, "Songti SC", serif; font-size: 1.15rem; }
@@ -155,7 +156,14 @@ dialog::backdrop { background: rgba(20, 19, 17, 0.65); backdrop-filter: blur(5px
 .detail-body p, .detail-body li { color: var(--ink); font-size: 0.94rem; }
 .detail-body ul, .detail-body ol { padding-left: 1.25rem; }
 .detail-body blockquote { margin: 24px 0; padding: 4px 0 4px 18px; border-left: 2px solid var(--accent); color: var(--muted); }
+.detail-body blockquote blockquote { margin: 12px 0; }
+.detail-body blockquote > :first-child { margin-top: 0; }
+.detail-body blockquote > :last-child { margin-bottom: 0; }
+.detail-body li > p { margin: 10px 0; }
+.detail-body hr { margin: 24px 0; border: 0; border-top: 1px solid var(--line); }
 .detail-body code { padding: 2px 5px; border-radius: 4px; background: var(--paper-deep); font-size: 0.88em; }
+.detail-body pre.code-block { max-width: 100%; margin: 18px 0; padding: 14px; overflow-x: auto; border-radius: 6px; background: var(--paper-deep); font-size: 0.86rem; line-height: 1.5; }
+.detail-body pre.code-block code { padding: 0; background: transparent; font-size: inherit; }
 .detail-body .math-block { max-width: 100%; margin: 26px 0; padding: 15px 0; overflow-x: auto; overflow-y: hidden; text-align: center; }
 .detail-body .katex-display { margin: 0; overflow-x: auto; overflow-y: hidden; }
 .detail-body .katex { font-size: 1.08em; }

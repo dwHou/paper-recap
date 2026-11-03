@@ -2,15 +2,14 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-[![Deploy Paper Recap](https://github.com/lawrence-cj/paper-recap/actions/workflows/pages.yml/badge.svg)](https://github.com/lawrence-cj/paper-recap/actions/workflows/pages.yml)
-[![Live Site](https://img.shields.io/badge/demo-junsongc.top-b14935)](https://junsongc.top/paper-recap/)
+[![Deploy Paper Recap](https://github.com/dwHou/paper-recap/actions/workflows/pages.yml/badge.svg)](https://github.com/dwHou/paper-recap/actions/workflows/pages.yml)
 [![License: MIT](https://img.shields.io/badge/code_license-MIT-25231f.svg)](LICENSE)
 
 Turn the papers you read—and the useful conclusions from your conversations with AI agents—into a searchable, durable personal knowledge site.
 
 Paper Recap is a dependency-free static site workflow. Each paper is stored as a Markdown file, a Python script validates and builds the site, and GitHub Actions deploys it to GitHub Pages. It includes first-class support for LaTeX equations, paper figures, precise same-day ordering, and a portable Codex skill that can maintain the repository from multiple machines.
 
-**Live demo:** <https://junsongc.top/paper-recap/>
+**Site address after enabling GitHub Pages:** <https://dwhou.github.io/paper-recap/>
 
 ## Features
 
@@ -24,14 +23,13 @@ Paper Recap is a dependency-free static site workflow. Each paper is stored as a
 - Build-time validation for metadata, required sections, math delimiters, and media paths.
 - Automatic GitHub Pages deployment on every push to `main`.
 - A bundled `update-paper-recap` Codex skill for turning rough notes or agent conversations into published recaps.
-- An optional privacy-friendly page-view counter in the footer.
 
 ## Quick start
 
 Requirements: Git and Python 3. The builder uses only the Python standard library—no Node.js, npm, or third-party Python packages are required.
 
 ```bash
-git clone https://github.com/lawrence-cj/paper-recap.git
+git clone https://github.com/dwHou/paper-recap.git
 cd paper-recap
 python3 scripts/build_site.py
 python3 -m http.server 8000 --directory dist
@@ -45,7 +43,7 @@ Open <http://localhost:8000>.
 
 1. Fork this repository, or clone it and push it to your own GitHub repository.
 2. Create your first note from `content/TEMPLATE.md`, then remove the example notes you do not want.
-3. Update the site title, author, and copyright text in `index.html`.
+3. Update the site title in `index.html`, and set the site author and copyright start year in `site.config.json`.
 4. Replace the default repository URL in `.codex/skills/update-paper-recap/SKILL.md` with your own repository.
 5. Run `python3 scripts/build_site.py` and fix any validation errors.
 6. In your GitHub repository, open `Settings → Pages` and set Source to **GitHub Actions**.
@@ -63,17 +61,7 @@ If the repository is named `<username>.github.io`, it is normally published at:
 https://<username>.github.io/
 ```
 
-### Configure or remove the page-view counter
-
-The example site uses `hits.sh` in `index.html` to count page loads. After forking, replace both occurrences of:
-
-```text
-junsongc.top/paper-recap
-```
-
-with your own domain or GitHub Pages path. Otherwise, your visits will be counted against the demo site. To disable external analytics entirely, remove the `.visit-counter` link from `index.html`.
-
-The badge counts page loads rather than strictly deduplicated visitors. Clicking it opens a public dashboard with weekly, monthly, and total counts.
+`site.config.json` defaults to Devonn Hou and a 2026 copyright start year. Each build extends the footer year through the current year. This setting only controls the HTML author metadata and footer; it does not change figure credits, `LICENSE`, or `COPYRIGHT`.
 
 ## Add a paper
 
@@ -88,6 +76,7 @@ Example frontmatter:
 ```yaml
 ---
 title: "Paper Title"
+display_title: "VAR"
 paper_url: "https://arxiv.org/abs/xxxx.xxxxx"
 authors: "First Author et al."
 venue: "Conference / Journal / arXiv"
@@ -101,6 +90,10 @@ one_liner: "The one sentence that should restore the paper's core idea six month
 ```
 
 Choose 2–5 canonical `key` values from [`content/tag-taxonomy.json`](content/tag-taxonomy.json) for `tags`. The catalog groups research areas and methods / engineering. Video generation, causal / autoregressive generation, and streaming / long video describe different dimensions and can overlap. World-model classification requires state prediction or interactive simulation; a long video alone is insufficient. Keep narrower concepts in the optional `search_terms` list or note body so they remain searchable without expanding the browsing catalog.
+
+Keep the complete paper name in `title`. The optional `display_title` provides a short card and detail heading, such as `VAR`; the detail view also shows the complete title, and search indexes both.
+
+For new reading sessions, set `read_at` to the actual local time. Historical imports without a reliable reading time may omit it. Brief notes may use `略读`; when the source cannot support a useful one-sentence summary, keep `one_liner: ""` instead of inventing one. The taxonomy also includes image restoration, enhancement, watermarking, and digital-human topics.
 
 Selecting multiple tags shows their intersection. Counts show the total number of notes under each tag. Card and detail tags link to that topic. Search, selected tags, and sorting are stored in the URL for refresh and sharing.
 
@@ -161,17 +154,17 @@ content/
 Reference the image from Markdown:
 
 ```markdown
-![Method overview](media/example-paper/method-overview.webp "Paper Figure 2: method overview. Source: the authors, CC BY 4.0.")
+![Method overview](../media/example-paper/method-overview.webp "Paper Figure 2: method overview. Source: the authors, CC BY 4.0.")
 ```
 
 Image requirements:
 
-- Use only `media/<slug>/...` paths relative to `content/`.
+- Use only `../media/<slug>/...` paths relative to each note in `content/papers/`, so Typora previews figures directly; the builder converts them to site paths.
 - Include meaningful alt text plus the figure number, source, and license in the caption.
-- PNG, JPEG, and WebP are supported; WebP is preferred.
-- Keep every image below 2 MiB.
+- PNG, JPEG, WebP, and GIF are supported; WebP is preferred.
+- Keep every image at or below 3 MiB.
 - Usually include one method overview and, at most, one decisive result.
-- The site is public. If reuse permission is unclear, link to the original source instead of copying the figure.
+- The site is public. New figures require verified reuse permission. Figures carried over from the owner's older notes are marked for source and license review before publication.
 
 ## Codex skill: the shortest workflow
 
@@ -298,4 +291,4 @@ git diff --check
 
 The software source code is available under the [MIT License](LICENSE), copyright Junsong Chen.
 
-Personal reading notes, original written content, and original media under `content/` are not licensed under the MIT License unless a file explicitly says otherwise. They remain copyright Junsong Chen. Paper titles, bibliographic metadata, equations, quotations, and figures remain the property of their respective authors and publishers. See [`COPYRIGHT`](COPYRIGHT) for details.
+The personal reading notes and original prose under `content/` belong to Devonn Hou and are not covered by the MIT License. Third-party figures retain their respective owners' rights; migrated figure credits are pending review. See [`COPYRIGHT`](COPYRIGHT) for details.

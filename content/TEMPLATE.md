@@ -1,5 +1,6 @@
 ---
 title: "论文完整标题"
+display_title: "卡片显示名，例如 VAR（可省略）"
 paper_url: "https://arxiv.org/abs/..."
 authors: "作者，多个作者可写 et al."
 venue: "会议 / 期刊 / arXiv"
@@ -8,6 +9,7 @@ read_date: "YYYY-MM-DD"
 read_at: "YYYY-MM-DDTHH:MM:SS+08:00"
 status: "已精读"
 tags: ["主题一", "主题二"]
+search_terms: ["常见缩写", "方法名", "中英文别名"]
 one_liner: "如果半年后只能记住一句话，就是这一句。"
 ---
 
@@ -20,10 +22,10 @@ one_liner: "如果半年后只能记住一句话，就是这一句。"
 - 方法的关键机制
 - 与已有方法最本质的区别
 
-可选：插入一至三张真正帮助回忆的关键图。图片存放在 `content/media/<paper-slug>/`，正文使用相对于 `content/` 的路径，并在标题中注明图号、来源和许可：
+可选：插入一至三张真正帮助回忆的关键图。图片存放在 `content/media/<paper-slug>/`，正文使用相对于当前笔记文件的 `../media/<paper-slug>/...` 路径，便于 Typora 直接预览；标题中注明图号、来源和许可：
 
 ```markdown
-![方法总览](media/example-paper/method-overview.webp "论文 Figure 2：方法总览。来源：作者论文，CC BY 4.0。")
+![方法总览](../media/example-paper/method-overview.webp "论文 Figure 2：方法总览。来源：作者论文，CC BY 4.0。")
 ```
 
 行内公式使用 `$x_t = f(x_{t-1})$`。独立公式使用：

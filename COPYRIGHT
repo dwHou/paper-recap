@@ -1,9 +1,13 @@
-Copyright (c) 2026 Junsong Chen.
+Copyright (c) 2026 Junsong Chen for the original Paper Recap software.
 
-The Paper Recap software source code is available under the MIT License; see
-LICENSE. The original paper-reading notes, original written content, and
-original media in content/ remain owned by Junsong Chen and are not licensed
-under the MIT License unless a file explicitly states otherwise.
+The software source code remains available under the MIT License; see LICENSE.
+The original software attribution is retained from the upstream project.
 
-Paper titles, bibliographic metadata, quotations, formulas, and referenced
-research remain the property of their respective authors and publishers.
+Copyright (c) 2019–2026 Devonn Hou for the migrated personal reading notes
+and original prose under content/. These notes are not covered by the software
+MIT License unless an individual file explicitly says otherwise.
+
+Paper titles, bibliographic metadata, quotations, formulas, and third-party
+figures remain subject to their respective authors' and publishers' rights.
+Figures carried over from the older personal notes are marked for source and
+license review before publication.

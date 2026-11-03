@@ -2,3 +2,13 @@ dist/
 tmp/
 .DS_Store
 __pycache__/
+
+# Local OpenSpec artifacts and generated integration files.
+/openspec/
+/.codex/skills/openspec-*/
+/.github/skills/openspec-*/
+/.github/prompts/opsx-*.prompt.md
+/.claude/commands/opsx/
+/.claude/skills/openspec-*/
+/.cursor/commands/opsx-*.md
+/.cursor/skills/openspec-*/

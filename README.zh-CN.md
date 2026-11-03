@@ -2,15 +2,14 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-[![Deploy Paper Recap](https://github.com/lawrence-cj/paper-recap/actions/workflows/pages.yml/badge.svg)](https://github.com/lawrence-cj/paper-recap/actions/workflows/pages.yml)
-[![Live Site](https://img.shields.io/badge/demo-junsongc.top-b14935)](https://junsongc.top/paper-recap/)
+[![Deploy Paper Recap](https://github.com/dwHou/paper-recap/actions/workflows/pages.yml/badge.svg)](https://github.com/dwHou/paper-recap/actions/workflows/pages.yml)
 [![License: MIT](https://img.shields.io/badge/code_license-MIT-25231f.svg)](LICENSE)
 
 把每天读过的 paper 和与 Agent 讨论后的关键结论，沉淀成一个可搜索、可回顾、可长期维护的个人知识网站。
 
 Paper Recap 是一个零前端构建依赖的静态站点：每篇论文是一份 Markdown，Python 脚本负责校验和构建，GitHub Actions 自动发布到 GitHub Pages。它特别支持 LaTeX 公式、论文插图、同日精确排序，以及可跨机器安装的 Codex skill。
 
-**在线示例：** <https://junsongc.top/paper-recap/>
+**启用 GitHub Pages 后的网站地址：** <https://dwhou.github.io/paper-recap/>
 
 ## 功能
 
@@ -23,14 +22,13 @@ Paper Recap 是一个零前端构建依赖的静态站点：每篇论文是一�
 - 构建时自动校验元数据、章节、公式分隔符和图片路径。
 - 推送 `main` 后由 GitHub Actions 自动部署到 GitHub Pages。
 - 内置 `update-paper-recap` Codex skill，可把零散笔记或 Agent 对话整理并发布。
-- 页脚可选隐私友好的总访问次数统计。
 
 ## 快速开始
 
 环境要求：Git 和 Python 3。构建器只使用 Python 标准库，不需要 Node.js、npm 或额外 Python 包。
 
 ```bash
-git clone https://github.com/lawrence-cj/paper-recap.git
+git clone https://github.com/dwHou/paper-recap.git
 cd paper-recap
 python3 scripts/build_site.py
 python3 -m http.server 8000 --directory dist
@@ -44,7 +42,7 @@ python3 -m http.server 8000 --directory dist
 
 1. Fork 本仓库，或 clone 后推送到自己的 GitHub 仓库。
 2. 从 `content/TEMPLATE.md` 创建第一篇记录，再删除不需要的示例论文。
-3. 修改 `index.html` 中的站点标题、作者和版权信息。
+3. 修改 `index.html` 中的站点标题，并在 `site.config.json` 中设置网站作者和版权起始年份。
 4. 把 `.codex/skills/update-paper-recap/SKILL.md` 中的默认仓库地址改成自己的仓库。
 5. 运行 `python3 scripts/build_site.py`，修复所有校验错误。
 6. 在 GitHub 仓库中打开 `Settings → Pages`，将 Source 设置为 **GitHub Actions**。
@@ -62,17 +60,7 @@ https://<username>.github.io/<repository>/
 https://<username>.github.io/
 ```
 
-### 修改或移除访问计数器
-
-示例站点在 `index.html` 中使用 `hits.sh` 统计页面加载次数。Fork 后请把两处：
-
-```text
-junsongc.top/paper-recap
-```
-
-替换为自己的域名或 GitHub Pages 路径，否则访问会被计入示例站点。若不需要外部访问统计，直接删除 `index.html` 中的 `.visit-counter` 链接即可。
-
-该计数器统计页面加载次数，不是严格去重访客；点击页脚 badge 可查看公开的周、月和累计数据。
+`site.config.json` 的默认作者为 Devonn Hou，版权起始年份为 2026。每次构建时，页脚年份会延伸到当前年份；此配置只影响网页作者元信息和页脚，不会改变图片署名、`LICENSE` 或 `COPYRIGHT`。
 
 ## 添加一篇论文
 
@@ -87,6 +75,7 @@ Frontmatter 示例：
 ```yaml
 ---
 title: "Paper Title"
+display_title: "VAR"
 paper_url: "https://arxiv.org/abs/xxxx.xxxxx"
 authors: "First Author et al."
 venue: "Conference / Journal / arXiv"
@@ -99,7 +88,11 @@ one_liner: "半年后只看这一句，也能恢复论文最重要的机制。"
 ---
 ```
 
-`tags` 从 [`content/tag-taxonomy.json`](content/tag-taxonomy.json) 的 `key` 选择 2–5 项。分类分为“研究方向”和“方法与工程”：视频生成、自回归／因果、流式／长视频分别表示应用、生成方式和时间范围，可以同时使用；世界模型需有状态预测或交互模拟依据，不能仅因视频长就归入。更具体的概念可放入可选的 `search_terms` 列表或正文，仍可搜索，无需增加筛选标签。新增分类时同步修改这份分类表。
+`tags` 从 [`content/tag-taxonomy.json`](content/tag-taxonomy.json) 的 `key` 选择 2–5 项。分类包含视觉与图像、视频与数字人、研究方向、方法与工程；优先复用已有标签。更具体的概念可放入可选的 `search_terms` 列表或正文，仍可搜索，无需增加筛选标签。新增分类时同步修改这份分类表。
+
+`title` 保留论文完整标题；可选的 `display_title` 用于卡片与详情页的大标题，例如 `VAR`。详情页仍展示完整标题，搜索同时索引两者。
+
+新写的笔记填写实际 `read_at`；从历史资料迁入且没有可靠阅读时间的笔记可只填 `read_date`。简短记录可标记 `略读`；无法从原笔记提炼可靠结论时，保留 `one_liner: ""`，不必编造摘要。
 
 首页标签可多选，按交集筛选；数字为每个标签的总记录数。论文卡片和详情中的标签可跳到对应主题。搜索、筛选和排序保存在 URL，刷新后仍保留，也可以分享链接。
 
@@ -158,17 +151,17 @@ content/
 Markdown 写法：
 
 ```markdown
-![方法总览](media/example-paper/method-overview.webp "论文 Figure 2：方法总览。来源：作者论文，CC BY 4.0。")
+![方法总览](../media/example-paper/method-overview.webp "论文 Figure 2：方法总览。来源：作者论文，CC BY 4.0。")
 ```
 
 图片要求：
 
-- 只使用相对于 `content/` 的 `media/<slug>/...` 路径。
+- 只使用相对于笔记文件的 `../media/<slug>/...` 路径，Typora 可直接预览；构建器会转换成网站路径。
 - 必须提供有意义的 alt text、图号、来源和许可说明。
-- 支持 PNG、JPEG 和 WebP；推荐 WebP。
-- 每张图片不得超过 2 MiB。
+- 支持 PNG、JPEG、WebP 和 GIF；推荐 WebP。
+- 每张图片不得超过 3 MiB。
 - 通常只保留一张方法总览和一张决定性结果图。
-- 网站是公开的；许可不明确时不要复制图片，改为链接原始来源。
+- 网站是公开的；新增图片须先核实复用许可。旧笔记迁来的截图已标记来源与许可待复核，发布前应逐张确认。
 
 ## 使用 Codex skill：最简流程
 
@@ -295,4 +288,4 @@ git diff --check
 
 程序源代码使用 [MIT License](LICENSE)，版权归 Junsong Chen。
 
-`content/` 中的个人阅读笔记、网站原创文字和原创媒体不随 MIT License 授权，除非文件中另有说明；其版权归 Junsong Chen。论文标题、书目信息、公式、引用和论文图片仍属于各自作者或出版方。详见 [`COPYRIGHT`](COPYRIGHT)。
+`content/` 中的个人阅读笔记和原创文字归 Devonn Hou 所有，不随 MIT License 授权。第三方论文图片仍归原权利人；迁移图片的来源与许可有待复核。详见 [`COPYRIGHT`](COPYRIGHT)。

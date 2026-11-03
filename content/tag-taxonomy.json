@@ -1,6 +1,111 @@
 [
   {
-    "label": "研究方向",
+    "label": "视觉与图像",
+    "tags": [
+      {
+        "key": "Image Restoration",
+        "label": "图像复原",
+        "description": "去噪、去模糊、压缩伪影处理与其他图像质量恢复。",
+        "aliases": [
+          "image restoration",
+          "图像复原"
+        ]
+      },
+      {
+        "key": "Super Resolution",
+        "label": "超分辨率",
+        "description": "图像与视频超分、重采样及上采样方法。",
+        "aliases": [
+          "super resolution",
+          "SISR",
+          "超分"
+        ]
+      },
+      {
+        "key": "Image Enhancement",
+        "label": "画质增强",
+        "description": "锐化、色彩风格、对比度与感知画质优化。",
+        "aliases": [
+          "image enhancement",
+          "画质增强"
+        ]
+      },
+      {
+        "key": "Face Restoration",
+        "label": "人脸复原",
+        "description": "人脸超分、修复及身份与细节保持。",
+        "aliases": [
+          "face restoration",
+          "人脸修复"
+        ]
+      },
+      {
+        "key": "Image Generation",
+        "label": "图像生成",
+        "description": "图像合成、编辑与视觉生成模型。",
+        "aliases": [
+          "image generation",
+          "T2I",
+          "text-to-image"
+        ]
+      },
+      {
+        "key": "3D Face Reconstruction",
+        "label": "三维人脸重建",
+        "description": "三维人脸形状、表情与纹理重建。",
+        "aliases": [
+          "3DMM",
+          "3d face reconstruction"
+        ]
+      }
+    ]
+  },
+  {
+    "label": "视频与数字人",
+    "tags": [
+      {
+        "key": "Watermarking",
+        "label": "数字水印",
+        "description": "图像与视频的水印嵌入、鲁棒性与隐藏信息恢复。",
+        "aliases": [
+          "watermark",
+          "steganography",
+          "数字水印"
+        ]
+      },
+      {
+        "key": "Digital Humans",
+        "label": "数字人",
+        "description": "说话人头像、肖像驱动与数字化身生成。",
+        "aliases": [
+          "avatar",
+          "talking head",
+          "数字化身"
+        ]
+      },
+      {
+        "key": "Lip Sync",
+        "label": "唇形同步",
+        "description": "音频驱动的唇形对齐与说话人视频生成。",
+        "aliases": [
+          "lipsync",
+          "lip synchronization",
+          "唇形同步"
+        ]
+      },
+      {
+        "key": "Video Processing",
+        "label": "视频处理",
+        "description": "视频增强、编辑、传输及视频后处理。",
+        "aliases": [
+          "video processing",
+          "video enhancement"
+        ]
+      }
+    ]
+  },
+  {
+    "label": "大模型研究方向",
     "tags": [
       {
         "key": "Video Generation",
@@ -89,7 +194,7 @@
     ]
   },
   {
-    "label": "方法与工程",
+    "label": "大模型方法与工程",
     "tags": [
       {
         "key": "Knowledge Distillation",

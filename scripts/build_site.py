@@ -5,22 +5,26 @@ from __future__ import annotations
 
 import argparse
 import ast
+import html
 import json
 import re
 import shutil
 import sys
-from datetime import datetime, timezone
+import unicodedata
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from urllib.parse import urlparse
 
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTENT_DIR = ROOT / "content" / "papers"
 MEDIA_DIR = ROOT / "content" / "media"
 TAG_TAXONOMY = ROOT / "content" / "tag-taxonomy.json"
+SITE_CONFIG = ROOT / "site.config.json"
 DIST_DIR = ROOT / "dist"
-MAX_MEDIA_BYTES = 2 * 1024 * 1024
+MAX_MEDIA_BYTES = 3 * 1024 * 1024
 IMAGE_PATTERN = re.compile(
-    r'^!\[([^\]\n]+)\]\((media/[^\s)"\']+\.(?:png|jpe?g|webp))(?:\s+"([^"\n]+)")?\)\s*$',
+    r'^!\[([^\]\n]+)\]\((\.\./media/[a-z0-9-]+/[a-z0-9][a-z0-9._-]*\.(?:png|jpe?g|webp|gif))\s+"([^"\n]+)"\)\s*$',
     re.IGNORECASE | re.MULTILINE,
 )
 REQUIRED_FIELDS = {
@@ -35,6 +39,34 @@ REQUIRED_SECTIONS = (
 
 class ContentError(ValueError):
     pass
+
+
+def render_site_index(current_year: int) -> str:
+    try:
+        config = json.loads(SITE_CONFIG.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise ContentError("无法读取有效的 site.config.json") from exc
+    if not isinstance(config, dict) or set(config) != {"author", "copyright_start_year"}:
+        raise ContentError("site.config.json 必须只包含 author 和 copyright_start_year")
+
+    author = config["author"]
+    start_year = config["copyright_start_year"]
+    if not isinstance(author, str) or not 1 <= len(author.strip()) <= 100 or any(
+        unicodedata.category(char).startswith("C") for char in author
+    ):
+        raise ContentError("site.config.json 的 author 必须是 1–100 字符的有效文本")
+    if type(start_year) is not int or not 1900 <= start_year <= current_year:
+        raise ContentError("site.config.json 的 copyright_start_year 必须是有效的起始年份")
+
+    try:
+        template = (ROOT / "index.html").read_text(encoding="utf-8")
+    except OSError as exc:
+        raise ContentError("无法读取 index.html 模板") from exc
+    if template.count("{{SITE_AUTHOR}}") != 2 or template.count("{{COPYRIGHT_YEARS}}") != 1:
+        raise ContentError("index.html 缺少预期的站点作者或版权年份占位符")
+    years = str(start_year) if start_year == current_year else f"{start_year}–{current_year}"
+    return (template.replace("{{SITE_AUTHOR}}", html.escape(author.strip(), quote=True))
+            .replace("{{COPYRIGHT_YEARS}}", years))
 
 
 def load_tag_groups() -> list[dict]:
@@ -65,15 +97,16 @@ def load_tag_groups() -> list[dict]:
     return groups
 
 
-def validate_images(body: str, slug: str) -> None:
+def validate_images(body: str, slug: str, note_path: Path) -> str:
     matches = list(IMAGE_PATTERN.finditer(body))
     if body.count("![") != len(matches):
         raise ContentError(
-            "图片语法无效；请使用 ![替代文本](media/<slug>/image.webp \"图注与来源\")"
+            "图片语法无效；请使用 ![替代文本](../media/<slug>/image.webp \"图号、来源与许可\")"
         )
 
     media_root = MEDIA_DIR.resolve()
-    expected_prefix = f"media/{slug}/"
+    expected_dir = MEDIA_DIR / slug
+    expected_prefix = f"../media/{slug}/"
     for match in matches:
         alt_text, relative_path, caption = match.groups()
         if not alt_text.strip():
@@ -82,19 +115,40 @@ def validate_images(body: str, slug: str) -> None:
             raise ContentError(f"图片 {relative_path} 必须包含图注与来源")
         if not relative_path.startswith(expected_prefix):
             raise ContentError(
-                f"图片 {relative_path} 必须放在 content/media/{slug}/ 并使用 media/{slug}/... 引用"
+                f"图片 {relative_path} 必须放在 content/media/{slug}/ 并使用 ../media/{slug}/... 引用"
             )
 
-        media_path = (ROOT / "content" / relative_path).resolve()
+        candidate = note_path.parent / relative_path
+        if expected_dir.is_symlink() or candidate.is_symlink():
+            raise ContentError(f"图片不能使用符号链接：{relative_path}")
+        media_path = candidate.resolve()
         try:
             media_path.relative_to(media_root)
+            media_path.relative_to(expected_dir.resolve())
         except ValueError as exc:
             raise ContentError(f"图片路径越界：{relative_path}") from exc
         if not media_path.is_file():
-            raise ContentError(f"图片不存在：content/{relative_path}")
+            raise ContentError(f"图片不存在：{relative_path}")
         if media_path.stat().st_size > MAX_MEDIA_BYTES:
             size_mb = media_path.stat().st_size / (1024 * 1024)
-            raise ContentError(f"图片超过 2 MiB：{relative_path} ({size_mb:.2f} MiB)")
+            raise ContentError(f"图片超过 3 MiB：{relative_path} ({size_mb:.2f} MiB)")
+        with media_path.open("rb") as media_file:
+            header = media_file.read(12)
+        suffix = media_path.suffix.lower()
+        valid_header = {
+            ".png": header.startswith(b"\x89PNG\r\n\x1a\n"),
+            ".jpg": header.startswith(b"\xff\xd8\xff"),
+            ".jpeg": header.startswith(b"\xff\xd8\xff"),
+            ".webp": header.startswith(b"RIFF") and header[8:12] == b"WEBP",
+            ".gif": header.startswith((b"GIF87a", b"GIF89a")),
+        }
+        if not valid_header.get(suffix, False):
+            raise ContentError(f"图片格式与扩展名不符：{relative_path}")
+
+    return IMAGE_PATTERN.sub(
+        lambda match: f'![{match.group(1)}]({match.group(2)[3:]} "{match.group(3)}")',
+        body,
+    )
 
 
 def parse_scalar(raw: str):
@@ -131,6 +185,13 @@ def parse_note(path: Path) -> dict:
     missing = sorted(REQUIRED_FIELDS - metadata.keys())
     if missing:
         raise ContentError(f"缺少字段：{', '.join(missing)}")
+    if not isinstance(metadata["one_liner"], str):
+        raise ContentError("one_liner 必须是文本，可留空")
+    paper_url = metadata["paper_url"]
+    if not isinstance(paper_url, str) or (paper_url and (
+        urlparse(paper_url).scheme != "https" or not urlparse(paper_url).netloc
+    )):
+        raise ContentError("paper_url 必须是 HTTPS 链接或空字符串")
     if not isinstance(metadata["tags"], list) or not metadata["tags"]:
         raise ContentError("tags 必须是至少含一个主题的列表")
     if not all(isinstance(tag, str) and tag.strip() for tag in metadata["tags"]):
@@ -140,6 +201,14 @@ def parse_note(path: Path) -> dict:
         or not all(isinstance(term, str) and term.strip() for term in metadata["search_terms"])
     ):
         raise ContentError("search_terms 必须是非空文本组成的列表")
+    if "display_title" in metadata and (
+        not isinstance(metadata["display_title"], str)
+        or not metadata["display_title"].strip()
+        or len(metadata["display_title"]) > 120
+    ):
+        raise ContentError("display_title 必须是 1–120 字符的非空文本")
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(metadata["read_date"])):
+        raise ContentError("read_date 必须使用 YYYY-MM-DD")
     try:
         datetime.strptime(str(metadata["read_date"]), "%Y-%m-%d")
     except ValueError as exc:
@@ -153,8 +222,8 @@ def parse_note(path: Path) -> dict:
             raise ContentError("read_at 必须包含时区，例如 +08:00")
         if read_at.date().isoformat() != str(metadata["read_date"]):
             raise ContentError("read_at 的本地日期必须与 read_date 一致")
-    if not str(metadata["title"]).strip() or not str(metadata["one_liner"]).strip():
-        raise ContentError("title 和 one_liner 不能为空")
+    if not str(metadata["title"]).strip():
+        raise ContentError("title 不能为空")
 
     slug = re.sub(r"^\d{4}-\d{2}-\d{2}-", "", path.stem)
     body = match.group(2).strip()
@@ -166,7 +235,7 @@ def parse_note(path: Path) -> dict:
     missing_sections = [section for section in REQUIRED_SECTIONS if section not in headings]
     if missing_sections:
         raise ContentError(f"缺少章节：{', '.join(missing_sections)}")
-    validate_images(body, slug)
+    body = validate_images(body, slug, path)
 
     metadata["slug"] = slug
     metadata["body"] = body
@@ -213,12 +282,14 @@ def write_data(path: Path, papers: list[dict]) -> None:
 
 
 def build(papers: list[dict]) -> None:
+    site_index = render_site_index(datetime.now(timezone(timedelta(hours=8))).year)
     if DIST_DIR.exists():
         shutil.rmtree(DIST_DIR)
     (DIST_DIR / "assets").mkdir(parents=True)
-    for filename in ("index.html", "404.html", ".nojekyll"):
+    (DIST_DIR / "index.html").write_text(site_index, encoding="utf-8")
+    for filename in ("404.html", ".nojekyll"):
         shutil.copy2(ROOT / filename, DIST_DIR / filename)
-    for filename in ("styles.css", "app.js"):
+    for filename in ("styles.css", "markdown.js", "app.js"):
         shutil.copy2(ROOT / "assets" / filename, DIST_DIR / "assets" / filename)
     if MEDIA_DIR.exists():
         shutil.copytree(MEDIA_DIR, DIST_DIR / "media")

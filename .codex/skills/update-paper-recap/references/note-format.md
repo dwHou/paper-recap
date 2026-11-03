@@ -7,16 +7,17 @@ Use UTF-8 Markdown with this exact top-level structure. Copy `content/TEMPLATE.m
 Required fields:
 
 - `title`: official paper title.
+- Optional `display_title`: a concise, recognizable name for cards and detail headings; keep the complete official title in `title`.
 - `paper_url`: canonical paper or arXiv URL; use an empty quoted string if unavailable.
 - `authors`: compact author display, such as `First Author et al.`.
 - `venue`: conference, journal, arXiv, or `待补充`.
 - `published`: four-digit year as quoted text, or `待补充`.
 - `read_date`: local date in `YYYY-MM-DD`.
-- `read_at`: local reading time in timezone-aware ISO 8601 format, such as `2026-08-03T22:35:13+08:00`. Require it for every new note so papers from the same day sort in true reading order. Legacy notes may omit it.
+- `read_at`: local reading time in timezone-aware ISO 8601 format, such as `2026-08-03T22:35:13+08:00`. Require it for every new reading session so papers from the same day sort in true reading order. Historical imports with no reliable time may omit it.
 - `status`: normally `待读`, `略读`, `已读`, `已精读`, or `复现中`.
 - `tags`: inline quoted list with two to five stable tags. Use canonical `key` values from `content/tag-taxonomy.json`; the site groups and labels these for browsing. Prefer an existing broad category over creating a paper-specific tag. `Streaming Video` covers streaming / long-video generation, while `Autoregressive Generation` covers causal / autoregressive methods; they are distinct and may both apply.
 - Optional `search_terms`: inline quoted list of more specific concepts or former tags, for full-text search without expanding the browsing taxonomy. Do not put paper-specific terms into `tags` just to make them searchable.
-- `one_liner`: one standalone sentence that restores the paper's core memory.
+- `one_liner`: one standalone sentence that restores the paper's core memory; use an empty quoted string only when the source cannot support a defensible sentence.
 
 Keep all string values quoted. Keep the frontmatter parser-compatible: one `key: value` per line and no multiline values.
 
@@ -60,11 +61,11 @@ $$
 Actively source a good figure for every entry — do not treat this as optional polish. Prefer one method overview and, when decisive, one qualitative or quantitative result; do not mirror the whole paper. This applies whether the source is a PDF, a blog post, a project page, or a repo README: check what diagrams/screenshots exist and pull the one that most helps future recall.
 
 - Treat the site as public: verify that reuse is permitted, and include the paper figure number (or a descriptive name if the source has none), source, and license in the caption. If permission is unclear, link to the source instead of copying the image — but say so explicitly rather than silently omitting the figure.
-- Store media under `content/media/<paper-slug>/` using stable lowercase kebab-case names. Prefer WebP for rendered figures and PNG only when it preserves diagrams or text better. Each file must be no larger than 2 MiB.
+- Store media under `content/media/<paper-slug>/` using stable lowercase kebab-case names. Prefer WebP for rendered figures and PNG only when it preserves diagrams or text better. Each file must be no larger than 3 MiB.
 - Use standard Markdown with a required alt text and quoted caption:
 
 ```markdown
-![VideoCoCo method overview](media/videococo/method-overview.webp "论文 Figure 2：双引擎方法总览。来源：VideoCoCo，CC BY 4.0。")
+![VideoCoCo method overview](../media/videococo/method-overview.webp "论文 Figure 2：双引擎方法总览。来源：VideoCoCo，CC BY 4.0。")
 ```
 
 - Keep equations as editable LaTeX and tables as Markdown whenever practical; never replace them with screenshots.
