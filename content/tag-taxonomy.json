@@ -70,6 +70,18 @@
           "图像算子",
           "图像滤波"
         ]
+      },
+      {
+        "key": "Visual Representation",
+        "label": "视觉表征",
+        "description": "视觉编码、图像 token 化与视觉特征学习。",
+        "aliases": ["vision transformer", "ViT", "视觉编码"]
+      },
+      {
+        "key": "3D Scene Reconstruction",
+        "label": "三维场景重建",
+        "description": "多视角场景表示、新视角合成与三维重建。",
+        "aliases": ["NeRF", "3DGS", "novel view synthesis", "三维重建"]
       }
     ]
   },
@@ -203,6 +215,12 @@
           "workflow",
           "knowledge management"
         ]
+      },
+      {
+        "key": "Reinforcement Learning",
+        "label": "强化学习",
+        "description": "策略优化、奖励反馈及语言模型的强化学习后训练。",
+        "aliases": ["RL", "RLHF", "PPO", "GRPO", "强化学习"]
       }
     ]
   },

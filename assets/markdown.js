@@ -94,6 +94,8 @@
     const first = listLine(lines[start]);
     const base = indentOf(first[1]);
     const kind = listKind(first[2]);
+    const firstNumber = kind === "ol" ? Number.parseInt(first[2], 10) : 1;
+    const startAttribute = Number.isSafeInteger(firstNumber) && firstNumber !== 1 ? ` start="${firstNumber}"` : "";
     const items = [];
     let index = start;
     while (index < lines.length) {
@@ -105,11 +107,13 @@
       while (index < lines.length) {
         const current = lines[index];
         if (!current.trim()) {
-          const next = lines[index + 1];
-          if (next === undefined) { index += 1; break; }
+          let nextIndex = index + 1;
+          while (nextIndex < lines.length && !lines[nextIndex].trim()) nextIndex += 1;
+          if (nextIndex === lines.length) { index = nextIndex; break; }
+          const next = lines[nextIndex];
           const nextMatch = listLine(next);
-          if (nextMatch && indentOf(nextMatch[1]) === base && listKind(nextMatch[2]) === kind) { index += 1; break; }
-          if (indentOf((next.match(/^[ \t]*/) || [""])[0]) > base) { children.push(""); index += 1; continue; }
+          if (nextMatch && indentOf(nextMatch[1]) === base && listKind(nextMatch[2]) === kind) { index = nextIndex; break; }
+          if (indentOf((next.match(/^[ \t]*/) || [""])[0]) > base) { children.push(""); index = nextIndex; continue; }
           break;
         }
         const leading = (current.match(/^[ \t]*/) || [""])[0];
@@ -119,7 +123,7 @@
       }
       items.push(`<li>${inlineMarkdown(match[3])}${children.length ? renderBlocks(children, depth + 1) : ""}</li>`);
     }
-    return { html: `<${kind}>${items.join("")}</${kind}>`, next: index };
+    return { html: `<${kind}${startAttribute}>${items.join("")}</${kind}>`, next: index };
   }
 
   function blockStart(lines, index) {
@@ -197,7 +201,7 @@
 
       const heading = line.match(/^(#{1,6})\s+(.+)$/);
       if (heading) {
-        output.push(`<h${heading[1].length}>${inlineMarkdown(heading[2])}</h${heading[1].length}>`);
+        output.push(`<h${heading[1].length} data-outline-label="${escapeHtml(heading[2])}">${inlineMarkdown(heading[2])}</h${heading[1].length}>`);
         index += 1;
         continue;
       }

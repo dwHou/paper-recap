@@ -206,9 +206,59 @@
       <div class="detail-body">${renderMarkdown(paper.body)}</div>
       ${paper.paper_url ? `<a class="paper-link" href="${escapeHtml(paper.paper_url)}" target="_blank" rel="noopener">查看原论文 ↗</a>` : ""}`;
     renderMath(elements.dialogContent);
+    addNoteOutline();
     if (!elements.dialog.open) elements.dialog.showModal();
     syncDialogScrollLock();
     if (updateHash) history.pushState({ slug }, "", `#paper=${encodeURIComponent(slug)}`);
+  }
+
+  function addNoteOutline() {
+    const body = elements.dialogContent.querySelector(".detail-body");
+    const headings = [...body.querySelectorAll(":scope > h2, :scope > h3, :scope > h4, :scope > h5, :scope > h6")];
+
+    const outline = document.createElement("details");
+    outline.className = "note-outline";
+    const summary = document.createElement("summary");
+    const title = document.createElement("span");
+    title.className = "note-outline-title";
+    title.textContent = "文章目录";
+    const count = document.createElement("span");
+    count.className = "note-outline-count";
+    count.textContent = `共 ${headings.length} 节`;
+    summary.append(title, count);
+    outline.append(summary);
+
+    const list = document.createElement("ol");
+    list.className = "note-outline-list";
+    headings.forEach((heading, index) => {
+      const id = `note-section-${index + 1}`;
+      heading.id = id;
+      const item = document.createElement("li");
+      item.className = `note-outline-${heading.tagName.toLowerCase()}`;
+      const button = document.createElement("button");
+      button.type = "button";
+      button.dataset.outlineTarget = id;
+      button.textContent = outlineLabel(heading.dataset.outlineLabel || heading.innerText);
+      item.append(button);
+      list.append(item);
+    });
+    outline.append(list);
+    body.before(outline);
+  }
+
+  function outlineLabel(raw) {
+    return raw.replace(/\$([^$]+)\$/g, (_match, math) => math
+      .replace(/\\hat\s*\\epsilon/g, "ε̂")
+      .replace(/\\hat\s*x_0/g, "x̂₀")
+      .replace(/\\epsilon/g, "ε")
+      .replace(/\\theta/g, "θ")
+      .replace(/\\alpha/g, "α")
+      .replace(/\\sigma/g, "σ")
+      .replace(/\\mathrm\{([^}]+)\}/g, "$1")
+      .replace(/[{}\\]/g, ""))
+      .replaceAll("**", "")
+      .replaceAll("`", "")
+      .trim();
   }
 
   function closePaper(updateHash = true) {
@@ -285,6 +335,15 @@
     if (location.hash.startsWith("#paper=")) closePaper();
   });
   elements.dialogContent.addEventListener("click", (event) => {
+    const outlineButton = event.target.closest(".note-outline button[data-outline-target]");
+    if (outlineButton) {
+      const heading = document.getElementById(outlineButton.dataset.outlineTarget);
+      if (heading && elements.dialogContent.contains(heading)) {
+        const top = elements.dialog.scrollTop + heading.getBoundingClientRect().top - elements.dialog.getBoundingClientRect().top - 22;
+        elements.dialog.scrollTo({ top: Math.max(0, top), behavior: "auto" });
+      }
+      return;
+    }
     const noteLink = event.target.closest("a[data-paper-slug]");
     if (noteLink) {
       event.preventDefault();

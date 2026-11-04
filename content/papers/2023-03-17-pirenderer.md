@@ -108,6 +108,10 @@ Gram matrix扩展[1](https://blog.csdn.net/bbbeoy/article/details/108195122),[2]
 
 ![warping and editing network](../media/pirenderer/warping-and-editing-network.png "旧笔记图 2：warping and editing network。来源：原笔记，原图出处待复核；许可：待复核。")
 
+![Gram 矩阵表示特征间相关性](../media/pirenderer/gram-matrix-explanation.png "原笔记补充图：Gram 矩阵的内积与特征相关性。来源：原笔记截图；许可待复核。")
+
+![风格迁移通过 Gram 矩阵比较特征](../media/pirenderer/gram-matrix-style-transfer.png "原笔记补充图：风格迁移中的 Gram 矩阵与特征图。来源：Gatys et al. 2015 相关课程截图；许可待复核。")
+
 ## 关键发现
 
 

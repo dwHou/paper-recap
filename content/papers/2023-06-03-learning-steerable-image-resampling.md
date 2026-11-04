@@ -71,6 +71,8 @@ RAISR是手工的特征，基于学习的规则。
 
 ![lut parameter prediction](../media/learning-steerable-image-resampling/lut-parameter-prediction.png "旧笔记图 3：lut parameter prediction。来源：原笔记，原图出处待复核；许可：待复核。")
 
+![固定双三次插值与可转向重采样函数的应用对比](../media/learning-steerable-image-resampling/sampling-patterns.png "原笔记方法示意：可转向重采样用于缩放、旋转、剪切和形变。来源：原笔记所引论文图；许可待复核。")
+
 ## 关键发现
 
 

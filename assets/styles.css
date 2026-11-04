@@ -165,15 +165,33 @@ dialog::backdrop { background: rgba(20, 19, 17, 0.65); backdrop-filter: blur(5px
 .detail-meta { display: flex; flex-wrap: wrap; gap: 8px 20px; padding-bottom: 30px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 0.78rem; }
 .detail-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
 .detail-summary { margin: 34px 0; padding: 20px 23px; border-left: 3px solid var(--accent); background: var(--accent-soft); font-family: Georgia, "Songti SC", serif; font-size: 1.15rem; }
+.note-outline { margin: 28px 0 36px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper-deep); }
+.note-outline summary { display: flex; align-items: center; gap: 14px; min-height: 56px; padding: 12px 20px; list-style: none; cursor: pointer; }
+.note-outline summary::-webkit-details-marker { display: none; }
+.note-outline-title { flex: 1; font-size: 0.9rem; font-weight: 700; letter-spacing: 0.03em; }
+.note-outline-count { color: var(--muted); font-size: 0.76rem; }
+.note-outline summary::after { content: "⌄"; color: var(--accent); font-size: 1.1rem; line-height: 1; transition: transform 160ms ease; }
+.note-outline[open] summary::after { transform: rotate(180deg); }
+.note-outline-list { display: grid; grid-template-columns: 1fr; gap: 2px; max-height: 340px; margin: 0; padding: 8px 16px 16px; overflow-y: auto; border-top: 1px solid var(--line); list-style: none; }
+.note-outline-list li { min-width: 0; }
+.note-outline-list button { display: block; width: 100%; padding: 8px 10px; border: 0; border-radius: 4px; color: var(--ink); background: transparent; font: inherit; font-size: 0.82rem; line-height: 1.35; text-align: left; cursor: pointer; }
+.note-outline-list button:hover, .note-outline-list button:focus-visible { color: var(--accent); background: var(--accent-soft); }
+.note-outline-h2 button { font-weight: 700; }
+.note-outline-h3 button { padding-left: 18px; }
+.note-outline-h4 button, .note-outline-h5 button, .note-outline-h6 button { padding-left: 26px; color: var(--muted); font-size: 0.76rem; }
 .detail-body h2 { margin: 42px 0 13px; padding-top: 15px; border-top: 1px solid var(--line); font-family: Georgia, "Songti SC", serif; font-size: 1.55rem; letter-spacing: -0.02em; }
 .detail-body h3 { margin: 27px 0 8px; color: var(--accent); font-size: 1rem; }
+.detail-body h4, .detail-body h5, .detail-body h6 { margin: 22px 0 8px; line-height: 1.45; }
+.detail-body h5, .detail-body h6 { color: var(--muted); font-size: 0.94rem; }
 .detail-body p, .detail-body li { color: var(--ink); font-size: 0.94rem; }
-.detail-body ul, .detail-body ol { padding-left: 1.25rem; }
+.detail-body ul, .detail-body ol { padding-left: 1.8rem; }
+.detail-body li + li { margin-top: 0.7rem; }
 .detail-body blockquote { margin: 24px 0; padding: 4px 0 4px 18px; border-left: 2px solid var(--accent); color: var(--muted); }
 .detail-body blockquote blockquote { margin: 12px 0; }
 .detail-body blockquote > :first-child { margin-top: 0; }
 .detail-body blockquote > :last-child { margin-bottom: 0; }
-.detail-body li > p { margin: 10px 0; }
+.detail-body li > p { margin: 10px 0 14px 1.5rem; line-height: 1.7; }
+.detail-body li > p:last-child { margin-bottom: 0; }
 .detail-body hr { margin: 24px 0; border: 0; border-top: 1px solid var(--line); }
 .detail-body code { padding: 2px 5px; border-radius: 4px; background: var(--paper-deep); font-size: 0.88em; }
 .detail-body pre.code-block { max-width: 100%; margin: 18px 0; padding: 14px; overflow-x: auto; border-radius: 6px; background: var(--paper-deep); font-size: 0.86rem; line-height: 1.5; }

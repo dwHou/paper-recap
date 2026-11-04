@@ -250,7 +250,7 @@ def load_papers() -> list[dict]:
         try:
             paper = parse_note(path)
             if not 1 <= len(paper["tags"]) <= 5 or len(set(paper["tags"])) != len(paper["tags"]):
-                raise ContentError("每篇记录需 2–5 个不重复的分类标签")
+                raise ContentError("每篇记录需 1–5 个不重复的分类标签")
             unknown = set(paper["tags"]) - known_tags
             if unknown:
                 raise ContentError(f"未定义的分类标签：{', '.join(sorted(unknown))}；请使用 content/tag-taxonomy.json 中的 key")

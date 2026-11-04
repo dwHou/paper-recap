@@ -15,7 +15,7 @@ Required fields:
 - `read_date`: local date in `YYYY-MM-DD`.
 - `read_at`: local reading time in timezone-aware ISO 8601 format, such as `2026-08-03T22:35:13+08:00`. Require it for every new reading session so papers from the same day sort in true reading order. Historical imports with no reliable time may omit it.
 - `status`: normally `待读`, `略读`, `已读`, `已精读`, or `复现中`.
-- `tags`: inline quoted list with two to five stable tags. Use canonical `key` values from `content/tag-taxonomy.json`; the site groups and labels these for browsing. Prefer an existing broad category over creating a paper-specific tag. `Streaming Video` covers streaming / long-video generation, while `Autoregressive Generation` covers causal / autoregressive methods; they are distinct and may both apply.
+- `tags`: inline quoted list with one to five stable tags. Use canonical `key` values from `content/tag-taxonomy.json`; the site groups and labels these for browsing. Prefer an existing broad category over creating a paper-specific tag. `Streaming Video` covers streaming / long-video generation, while `Autoregressive Generation` covers causal / autoregressive methods; they are distinct and may both apply.
 - Optional `search_terms`: inline quoted list of more specific concepts or former tags, for full-text search without expanding the browsing taxonomy. Do not put paper-specific terms into `tags` just to make them searchable.
 - `one_liner`: one standalone sentence that restores the paper's core memory; use an empty quoted string only when the source cannot support a defensible sentence.
 
@@ -58,7 +58,7 @@ $$
 
 ## Figures
 
-Actively source a good figure for every entry — do not treat this as optional polish. Prefer one method overview and, when decisive, one qualitative or quantitative result; do not mirror the whole paper. This applies whether the source is a PDF, a blog post, a project page, or a repo README: check what diagrams/screenshots exist and pull the one that most helps future recall.
+Actively source a good figure for every new entry. For a migrated note, compare every source figure and preserve those that add distinct explanatory value. Do not omit the user's learning diagrams solely to make the entry short. This applies whether the source is a PDF, a blog post, a project page, or a repo README.
 
 - Treat the site as public: verify that reuse is permitted, and include the paper figure number (or a descriptive name if the source has none), source, and license in the caption. If permission is unclear, link to the source instead of copying the image — but say so explicitly rather than silently omitting the figure.
 - Store media under `content/media/<paper-slug>/` using stable lowercase kebab-case names. Prefer WebP for rendered figures and PNG only when it preserves diagrams or text better. Each file must be no larger than 3 MiB.
