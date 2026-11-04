@@ -7,7 +7,7 @@ venue: "SIGGRAPH Asia"
 published: "2022"
 read_date: "2023-05-22"
 status: "已读"
-tags: ["Digital Humans", "Video Editing", "Lip Sync"]
+tags: ["Digital Humans", "Lip Sync"]
 search_terms: ["VideoReTalking", "视频重配音", "canonical expression", "人脸增强", "audio-based lip synchronization"]
 one_liner: "通过视频编辑流程将已有说话视频重新对齐到新音频。"
 ---

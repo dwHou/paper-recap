@@ -7,7 +7,7 @@ venue: "Neurocomputing"
 published: "2022"
 read_date: "2023-06-03"
 status: "略读"
-tags: ["Watermarking", "Image Restoration"]
+tags: ["Watermarking"]
 search_terms: ["鲁棒数字水印综述", "单阶段训练 SST", "双阶段训练 DST", "几何攻击", "盲水印"]
 one_liner: "梳理传统和学习型鲁棒图像水印，并区分单阶段与双阶段训练。"
 ---

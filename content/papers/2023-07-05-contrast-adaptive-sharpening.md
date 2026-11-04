@@ -7,7 +7,7 @@ venue: "工程项目"
 published: "待补充"
 read_date: "2023-07-05"
 status: "略读"
-tags: ["Image Enhancement", "Image Restoration"]
+tags: ["Image Enhancement", "Image Restoration", "Image Processing Operators"]
 search_terms: ["CAS", "AMD FidelityFX", "局部对比度锐化", "3x3 锐化", "TAA"]
 one_liner: "按局部 3×3 对比度调节锐化强度，以免高对比区域过度锐化。"
 ---

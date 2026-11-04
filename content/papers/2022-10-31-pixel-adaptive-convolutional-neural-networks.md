@@ -7,7 +7,7 @@ venue: "CVPR"
 published: "2019"
 read_date: "2022-10-31"
 status: "已精读"
-tags: ["Image Enhancement", "Training & Optimization"]
+tags: ["Image Enhancement", "Image Processing Operators"]
 search_terms: ["PAC", "像素自适应卷积", "动态卷积", "双边滤波", "内容自适应核"]
 one_liner: "让卷积核随像素内容变化，改善固定权重卷积的内容无关性。"
 ---

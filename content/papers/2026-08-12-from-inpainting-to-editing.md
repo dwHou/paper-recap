@@ -7,7 +7,7 @@ venue: "arXiv"
 published: "2025"
 read_date: "2026-08-12"
 status: "已读"
-tags: ["Digital Humans", "Video Editing", "Lip Sync"]
+tags: ["Digital Humans", "Lip Sync"]
 search_terms: ["X-Dub", "视觉配音编辑", "伴侣视频", "自举伪配对", "上下文丰富编辑"]
 one_liner: "先合成仅口型变化的配对视频，再训练利用完整上下文的音频驱动编辑器。"
 ---

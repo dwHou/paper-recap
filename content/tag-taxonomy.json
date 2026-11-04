@@ -57,6 +57,19 @@
           "3DMM",
           "3d face reconstruction"
         ]
+      },
+      {
+        "key": "Image Processing Operators",
+        "label": "图像处理算子",
+        "description": "滤波、边缘检测、形态学、几何变换、频域处理等经典与可微图像处理算子。",
+        "aliases": [
+          "image processing operator",
+          "image operators",
+          "image filtering",
+          "edge detection",
+          "图像算子",
+          "图像滤波"
+        ]
       }
     ]
   },

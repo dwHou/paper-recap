@@ -7,7 +7,7 @@ venue: "ICCV"
 published: "2021"
 read_date: "2023-03-17"
 status: "已精读"
-tags: ["Digital Humans", "Image Generation", "3D Face Reconstruction"]
+tags: ["Digital Humans", "3D Face Reconstruction"]
 search_terms: ["PIRenderer", "语义神经渲染", "3DMM 运动参数", "AdaIN", "肖像编辑"]
 one_liner: "以语义解耦的 3DMM 参数控制人像动作，并用神经渲染生成肖像。"
 ---

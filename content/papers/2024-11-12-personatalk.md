@@ -7,7 +7,7 @@ venue: "arXiv"
 published: "2024"
 read_date: "2024-11-12"
 status: "已精读"
-tags: ["Digital Humans", "Video Processing"]
+tags: ["Digital Humans", "Lip Sync"]
 search_terms: ["PersonaTalk", "说话风格建模", "几何驱动配音", "Lip-Attention", "Face-Attention"]
 one_liner: "将个人说话风格注入音频特征，再以双注意力渲染保留人脸细节。"
 ---

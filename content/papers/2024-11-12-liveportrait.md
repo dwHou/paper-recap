@@ -7,7 +7,7 @@ venue: "arXiv"
 published: "2024"
 read_date: "2024-11-12"
 status: "已读"
-tags: ["Digital Humans", "Image Generation"]
+tags: ["Digital Humans", "Video Processing"]
 search_terms: ["LivePortrait", "隐式关键点", "stitching", "retargeting", "单图肖像动画"]
 one_liner: "以隐式关键点建模肖像运动，并加入拼接与重定向控制实现高效动画。"
 ---

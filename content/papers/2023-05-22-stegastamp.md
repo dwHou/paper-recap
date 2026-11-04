@@ -7,7 +7,7 @@ venue: "CVPR"
 published: "2020"
 read_date: "2023-05-22"
 status: "已读"
-tags: ["Watermarking", "Image Restoration"]
+tags: ["Watermarking"]
 search_terms: ["StegaStamp", "物理照片隐写", "不可见超链接", "打印拍摄失真", "图像二维码"]
 one_liner: "将链接位串隐写进自然照片，并针对打印、拍摄造成的失真训练解码器。"
 ---

@@ -7,7 +7,7 @@ venue: "ACM Multimedia"
 published: "2019"
 read_date: "2023-05-23"
 status: "已读"
-tags: ["Watermarking", "Image Restoration"]
+tags: ["Watermarking"]
 search_terms: ["两阶段盲水印", "不可导攻击", "分离式训练", "抗 JPEG", "水印解码器"]
 one_liner: "把水印嵌入与提取分阶段训练，便于适配不可导和新增失真。"
 ---
