@@ -112,6 +112,8 @@ Gram matrix扩展[1](https://blog.csdn.net/bbbeoy/article/details/108195122),[2]
 
 ![风格迁移通过 Gram 矩阵比较特征](../media/pirenderer/gram-matrix-style-transfer.png "原笔记补充图：风格迁移中的 Gram 矩阵与特征图。来源：Gatys et al. 2015 相关课程截图；许可待复核。")
 
+![非零中心激活导致的梯度更新曲折路径](../media/pirenderer/gradient-zigzag.webp "旧笔记外部图：非零中心激活下梯度更新的 zigzag 路径。来源：知乎原笔记引用配图；许可待核对。")
+
 ## 关键发现
 
 

@@ -18,6 +18,8 @@ one_liner: "在潜空间直接学习音频驱动口型，并用时序表示对�
 
 ## 核心方法
 
+![MediaPipe 面部关键点与嘴部区域](../media/latentsync/face-landmarks.webp "旧笔记外部图：MediaPipe 面部关键点及嘴部区域。来源：MediaPipe 文档；许可待核对。")
+
 mask好像推理时是根据landmark来制作更精准的。
 
 而训练时，只是将输入做仿射变换，进行face frontalization，然后使用这张固定的mask.png。
