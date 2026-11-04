@@ -2,7 +2,7 @@
   const data = window.PAPER_RECAP_DATA || { generated_at: "", papers: [] };
   const tagGroups = data.tag_groups || [];
   const tagDefinitions = new Map(tagGroups.flatMap((group) => group.tags.map((tag) => [tag.key, tag])));
-  const state = { query: "", tags: new Set(), sort: "newest" };
+  const state = { query: "", tags: new Set(), sort: "newest", showTagKeys: false };
   let lockedScrollY = 0;
   const elements = {
     grid: document.querySelector("#paper-grid"),
@@ -12,6 +12,11 @@
     count: document.querySelector("#result-count"),
     empty: document.querySelector("#empty-state"),
     reset: document.querySelector("#reset-filters"),
+    keyToggle: document.querySelector("#tag-key-toggle"),
+    authoring: document.querySelector("#tag-authoring"),
+    tagSnippet: document.querySelector("#tag-frontmatter"),
+    copyTags: document.querySelector("#copy-tags"),
+    authoringStatus: document.querySelector("#tag-authoring-status"),
     dialog: document.querySelector("#paper-dialog"),
     dialogContent: document.querySelector("#dialog-content"),
     imageDialog: document.querySelector("#image-dialog"),
@@ -97,17 +102,30 @@
 
   function filterButton(tag, count) {
     const active = state.tags.has(tag.key);
-    return `<button class="tag-button ${active ? "active" : ""}" type="button" data-tag="${escapeHtml(tag.key)}" aria-pressed="${active}" title="${escapeHtml(tag.description)}">
-      ${escapeHtml(tag.label)} <span class="tag-count">${count}</span>
+    return `<button class="tag-button ${active ? "active" : ""} ${state.showTagKeys ? "key-visible" : ""}" type="button" data-tag="${escapeHtml(tag.key)}" aria-pressed="${active}" title="${escapeHtml(tag.description)}">
+      <span>${escapeHtml(tag.label)} <span class="tag-count">${count}</span></span>
+      ${state.showTagKeys ? `<span class="tag-key">${escapeHtml(tag.key)}</span>` : ""}
     </button>`;
+  }
+
+  function selectedTagSnippet() {
+    const keys = tagGroups.flatMap((group) => group.tags.map((tag) => tag.key))
+      .filter((key) => state.tags.has(key));
+    return `tags: [${keys.map((key) => JSON.stringify(key)).join(", ")}]`;
   }
 
   function renderTags() {
     const counts = new Map(allTags());
     elements.tags.innerHTML = tagGroups.map((group) => `<div class="tag-group" role="group" aria-label="${escapeHtml(group.label)}">
       <span class="tag-group-label">${escapeHtml(group.label)}</span>
-      <div class="tag-list">${group.tags.filter((tag) => counts.has(tag.key)).map((tag) => filterButton(tag, counts.get(tag.key))).join("")}</div>
+      <div class="tag-list">${group.tags.map((tag) => filterButton(tag, counts.get(tag.key) ?? 0)).join("")}</div>
     </div>`).join("");
+    elements.keyToggle.textContent = state.showTagKeys ? "收起速查" : "标签速查";
+    elements.keyToggle.setAttribute("aria-expanded", String(state.showTagKeys));
+    elements.authoring.hidden = !state.showTagKeys;
+    elements.tagSnippet.value = state.tags.size ? selectedTagSnippet() : "";
+    elements.copyTags.disabled = state.tags.size === 0 || state.tags.size > 5;
+    elements.authoringStatus.textContent = state.tags.size > 5 ? `已选 ${state.tags.size} 个标签，笔记最多允许 5 个。` : "";
   }
 
   function filteredPapers() {
@@ -216,7 +234,7 @@
   function initStats() {
     const uniqueDays = new Set(data.papers.map((paper) => paper.read_date)).size;
     document.querySelector("#stat-papers").textContent = data.papers.length;
-    document.querySelector("#stat-tags").textContent = allTags().length;
+    document.querySelector("#stat-tags").textContent = tagDefinitions.size;
     document.querySelector("#stat-days").textContent = uniqueDays;
     document.querySelector("#last-updated").textContent = data.generated_at ? `更新于 ${formatDate(data.generated_at.slice(0, 10))}` : "";
   }
@@ -238,6 +256,21 @@
     const button = event.target.closest("[data-tag]");
     if (button) toggleTag(button.dataset.tag);
   });
+  elements.keyToggle.addEventListener("click", () => {
+    state.showTagKeys = !state.showTagKeys;
+    renderTags();
+  });
+  elements.copyTags.addEventListener("click", async () => {
+    if (state.tags.size === 0 || state.tags.size > 5) return;
+    try {
+      await navigator.clipboard.writeText(selectedTagSnippet());
+      elements.authoringStatus.textContent = "已复制，可以粘贴到笔记头信息。";
+    } catch {
+      elements.tagSnippet.focus();
+      elements.tagSnippet.select();
+      elements.authoringStatus.textContent = "自动复制失败，已选中文本，请手动复制。";
+    }
+  });
   elements.grid.addEventListener("click", (event) => {
     const button = event.target.closest("button");
     if (button?.dataset.tag) selectSingleTag(button.dataset.tag);
@@ -252,6 +285,13 @@
     if (location.hash.startsWith("#paper=")) closePaper();
   });
   elements.dialogContent.addEventListener("click", (event) => {
+    const noteLink = event.target.closest("a[data-paper-slug]");
+    if (noteLink) {
+      event.preventDefault();
+      openPaper(noteLink.dataset.paperSlug);
+      elements.dialog.scrollTop = 0;
+      return;
+    }
     const button = event.target.closest(".paper-image-button");
     if (button) openImage(button);
     const tag = event.target.closest("[data-tag]");

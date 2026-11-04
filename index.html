@@ -57,6 +57,7 @@
           <div class="filter-toolbar">
             <p class="filter-help" id="filter-help">按标签找讲解 · 可多选，显示同时符合的记录</p>
             <div class="filter-actions">
+              <button class="tag-key-toggle" id="tag-key-toggle" type="button" aria-controls="tag-authoring" aria-expanded="false">标签速查</button>
               <button class="reset-filters" id="reset-filters" type="button" disabled>清除筛选</button>
               <label class="sort-control">排序
                 <select id="sort-select">
@@ -67,6 +68,15 @@
             </div>
           </div>
           <div class="tag-groups" id="tag-list" aria-label="按标签筛选" aria-describedby="filter-help"></div>
+          <div class="tag-authoring" id="tag-authoring" hidden>
+            <p id="tag-authoring-help">标签下方显示可写入笔记的 key。选择 1–5 个标签，即可复制头信息中的 <code>tags</code> 字段；选择也会筛选下方论文。</p>
+            <div class="tag-authoring-row">
+              <label for="tag-frontmatter">笔记标签</label>
+              <input id="tag-frontmatter" type="text" readonly placeholder="选择 1–5 个标签" aria-describedby="tag-authoring-help" />
+              <button class="copy-tags" id="copy-tags" type="button" disabled>复制 tags 字段</button>
+            </div>
+            <p class="tag-authoring-status" id="tag-authoring-status" aria-live="polite"></p>
+          </div>
         </div>
 
         <p class="result-count" id="result-count" aria-live="polite"></p>

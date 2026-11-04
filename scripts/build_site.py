@@ -249,7 +249,7 @@ def load_papers() -> list[dict]:
     for path in sorted(CONTENT_DIR.glob("*.md")):
         try:
             paper = parse_note(path)
-            if not 2 <= len(paper["tags"]) <= 5 or len(set(paper["tags"])) != len(paper["tags"]):
+            if not 1 <= len(paper["tags"]) <= 5 or len(set(paper["tags"])) != len(paper["tags"]):
                 raise ContentError("每篇记录需 2–5 个不重复的分类标签")
             unknown = set(paper["tags"]) - known_tags
             if unknown:

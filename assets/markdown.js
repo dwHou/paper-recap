@@ -11,6 +11,8 @@
 
   function plainInline(text) {
     return escapeHtml(text)
+      .replace(/\[([^\]]+)\]\((\d{4}-\d{2}-\d{2}-([a-z0-9-]+)\.md)\)/g,
+        (_match, label, _filename, slug) => `<a href="#paper=${slug}" data-paper-slug="${slug}">${label}</a>`)
       .replace(/\[([^\]]+)\]\((https:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
       .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
       .replace(/~~(.+?)~~/g, "<del>$1</del>")
