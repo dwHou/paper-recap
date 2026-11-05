@@ -6,6 +6,7 @@
   --muted: #6f706a;
   --line: #cbc5b8;
   --accent: #c54b30;
+  --note-brown: #8b4513;
   --accent-soft: #ead0c7;
   --card: rgba(255, 253, 247, 0.72);
   --shadow: 0 24px 70px rgba(41, 34, 25, 0.12);
@@ -31,6 +32,7 @@
   --muted: #a9aaa3;
   --line: #3a3d39;
   --accent: #eb765a;
+  --note-brown: #d9a46f;
   --accent-soft: #55342c;
   --card: rgba(36, 39, 36, 0.75);
   --shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
@@ -208,6 +210,7 @@ dialog::backdrop { background: rgba(20, 19, 17, 0.65); backdrop-filter: blur(5px
 .detail-body h4, .detail-body h5, .detail-body h6 { margin: 22px 0 8px; line-height: 1.45; }
 .detail-body h5, .detail-body h6 { color: var(--muted); font-size: 0.94rem; }
 .detail-body p, .detail-body li { color: var(--ink); font-size: 0.94rem; }
+.detail-body .note-color-brown { color: var(--note-brown); }
 .detail-body ul, .detail-body ol { padding-left: 1.8rem; }
 .detail-body li + li { margin-top: 0.7rem; }
 .detail-body blockquote { margin: 24px 0; padding: 4px 0 4px 18px; border-left: 2px solid var(--accent); color: var(--muted); }

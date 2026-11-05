@@ -16,11 +16,18 @@
       .replace(/\[([^\]]+)\]\((https:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
       .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
       .replace(/~~(.+?)~~/g, "<del>$1</del>")
-      .replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, "<em>$1</em>");
+      .replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, "<em>$1</em>")
+      // The note format uses this one legacy color tag; all other HTML stays escaped.
+      .replace(/&lt;font color=&quot;brown&quot;&gt;([\s\S]*?)&lt;\/font&gt;/gi,
+        '<span class="note-color-brown">$1</span>');
   }
 
   function inlineMarkdown(text) {
     const pieces = [];
+    const protectedHtml = [];
+    // Spaces keep protected content out of link destinations; the prefix cannot collide with note text.
+    let tokenPrefix = "\u0000paper-recap-inline ";
+    while (text.includes(tokenPrefix)) tokenPrefix += "\u0000";
     let plain = "";
     for (let index = 0; index < text.length;) {
       const marker = text[index] === "`"
@@ -37,16 +44,22 @@
         index += marker.length;
         continue;
       }
-      if (plain) pieces.push(plainInline(plain));
+      if (plain) pieces.push(plain);
       plain = "";
       const value = text.slice(index + marker.length, close);
-      pieces.push(marker[0] === "`"
+      const token = protectedHtml.length;
+      protectedHtml.push(marker[0] === "`"
         ? `<code>${escapeHtml(value)}</code>`
         : escapeHtml(`${marker}${value}${marker}`));
+      pieces.push(`${tokenPrefix}${token}\u0000`);
       index = close + marker.length;
     }
-    if (plain) pieces.push(plainInline(plain));
-    return pieces.join("");
+    if (plain) pieces.push(plain);
+    // Parse emphasis across protected formulas/code, then restore only escaped, renderer-owned HTML.
+    return plainInline(pieces.join("")).replace(
+      new RegExp(`${tokenPrefix}(\\d+)\u0000`, "g"),
+      (_match, token) => protectedHtml[Number(token)],
+    );
   }
 
   const quoteLine = (line) => line.match(/^ {0,3}> ?(.*)$/);

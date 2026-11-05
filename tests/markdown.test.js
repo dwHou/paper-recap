@@ -80,6 +80,46 @@ test("Markdown input cannot inject HTML or script URLs", () => {
   assert.match(html, /href="https:\/\/example\.com"/);
 });
 
+test("CausVid emphasis spans inline math without exposing Markdown markers", () => {
+  const note = fs.readFileSync(path.join(__dirname, "../content/papers/2026-11-04-causvid.md"), "utf8");
+  const source = note.split("\n").find((line) => line.includes("score 视角:"));
+  assert.ok(source, "the reported score explanation exists in the source note");
+  const html = renderMarkdown(source);
+  assert.match(html, /<strong>−\$\\epsilon\$的方向<\/strong>/);
+  assert.match(html, /<strong>score = 往数据靠近的方向 = 去噪方向 = −噪声方向\(除以 σ\)<\/strong>/);
+  assert.equal((html.match(/<strong>/g) || []).length, 2);
+  assert.doesNotMatch(html, /\*\*/);
+});
+
+test("inline math and code remain protected inside emphasis, links, and color spans", () => {
+  const html = renderMarkdown('**目标 $a * b$ 与 `x ** 2`**；<font color="brown">**$x_t$ 与 `value`**</font>；[*代码 `x`*](https://example.com)');
+  assert.match(html, /<strong>目标 \$a \* b\$ 与 <code>x \*\* 2<\/code><\/strong>/);
+  assert.match(html, /<span class="note-color-brown"><strong>\$x_t\$ 与 <code>value<\/code><\/strong><\/span>/);
+  assert.match(html, /<a href="https:\/\/example\.com"[^>]*><em>代码 <code>x<\/code><\/em><\/a>/);
+  const unsafe = renderMarkdown('**`<img src=x onerror=alert(1)>`** $<script>alert(1)</script>$ [bad](https://example.com/`x`)');
+  assert.doesNotMatch(unsafe, /<img\b|<script\b|<a\b/);
+  assert.match(unsafe, /<strong><code>&lt;img/);
+  assert.doesNotMatch(html + unsafe, /\u0000/);
+});
+
+test("the allowed brown font tag colors note text and keeps Markdown formatting", () => {
+  const html = renderMarkdown('前文 <font color="brown">**重点**与说明</font> 后文');
+  assert.match(html, /前文 <span class="note-color-brown"><strong>重点<\/strong>与说明<\/span> 后文/);
+  assert.doesNotMatch(html, /&lt;font|<font/);
+  assert.match(renderMarkdown('`<font color="brown">原样代码</font>`'), /<code>&lt;font color=&quot;brown&quot;&gt;原样代码&lt;\/font&gt;<\/code>/);
+});
+
+test("other font colors and attributes cannot inject HTML", () => {
+  for (const source of [
+    '<font color="red">文字</font>',
+    '<font color="brown" onclick="alert(1)">文字</font>',
+    '<font color="brown"><img src=x onerror=alert(1)></font>',
+  ]) {
+    const html = renderMarkdown(source);
+    assert.doesNotMatch(html, /<font\b|<img\b|\sonclick="|\sonerror="/);
+  }
+});
+
 test("the video world models X post renders as an isolated embed", () => {
   const note = fs.readFileSync(path.join(__dirname, "../content/papers/2026-10-26-towards-video-world-models.md"), "utf8");
   const body = note.split(/^---\s*$/m).slice(2).join("---");
