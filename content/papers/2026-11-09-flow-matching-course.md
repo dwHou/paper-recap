@@ -1385,9 +1385,48 @@ Adjoint Matching：流匹配模型的奖励微调
 
 ## 我的提问
 
-### Q1：我问 Agent 的问题
+### Q1：工业界大模型预训练时，用了 ReFlow 或 Mini-batch OT 来减少轨迹交叉吗？
 
-凝练后的回答，以及它如何改变了我的理解。
+答案是：统统没有！
+
+无论是图像领域的 **SD3、FLUX**，还是视频领域的 **Wan（万相）、MiniMax H3（海螺）**，它们在预训练阶段虽然名字都叫“Rectified Flow（矫正流）”，但实际上**只用了 Rectified Flow 的第一阶段（即 $x_t = (1-t)x_0 + t x_1$ 的独立随机直线插值，结合 Logit-Normal 时间步采样）**。它们既没有在训练时用 Mini-batch OT，也没有在训练后去跑真正的 ReFlow（解 ODE 重新配对）。
+
+为什么工业界集体放弃这两招？
+
+1. Mini-batch OT 在高维条件生成中完全失效
+   - **维度灾难**：一张视频的 Latent 动辄几十万维（比如 $77 \times 448 \times 832$ 的潜空间）。在几十万维的空间里，除非你的 Batch Size 能开到几百万，否则在几百的 Batch Size 里算出来的“欧氏距离最近”，跟随机盲配几乎没有区别。
+   - **Text 条件锁死**：预训练是 Text-to-Image/Video！图片 $x_1^{(i)}$ 是死死绑定着它自己的文本 Prompt $c^{(i)}$ 的。你如果强行用 OT 把 $x_0$ 和别人的 $x_1$ 重排配对，在跨卡数据并行（DDP/FSDP）时会带来巨大的通信开销和条件错乱。
+2. **真·ReFlow 成本太高且掉画质**： 要跑 ReFlow，你必须先用训好的几十 B 参数的大模型，花几百万美元的算力跑 50 步 ODE 生成几千万个合成样本对 $(x_0, \hat{x}_1)$，然后再从头训一遍。更致命的是，用模型自己生成的 $\hat{x}_1$ 训练下一代，会迅速丢失真实数据的高频细节，导致画面出现“塑料感”。
+
+### Q2：既然预训练没管交叉，它们后续是怎么蒸馏到 1~4 步的？是靠 DMD 吗？
+
+**答案是：完全正确！现代工业界已经全面抛弃了单纯靠“拉直几何轨迹”来加速的路线，全面转向了以 DMD / DMD2（分布匹配蒸馏）和 LADD（潜空间对抗扩散蒸馏）为核心的“分布级蒸馏”路线！**
+
+各大模型的真实底座揭秘：
+
+- **SD3 Turbo / FLUX.1-schnell**：用的是 Stability AI / Black Forest Labs 一脉相承的 **LADD (Latent Adversarial Diffusion Distillation)**。本质是让 Student 一步生成 Latent，然后直接拿 Teacher 的骨干网络当 GAN 的判别器（Discriminator），逼迫 Student 一步生成的图像分布跟真图一致。
+- **Wan（万相 2.1 / 2.2） & MiniMax H3**：在视频大模型领域，**DMD2（Distribution Matching Distillation 2，即 DMD + GAN 对抗损失）及其变体是绝对的统治者**。例如开源社区和工业界针对 **Wan 14B** 的 3~4 步加速（如 FastWan、Wan-DMD、Phased DMD、CoDMD），以及针对 **MiniMax H3 (33B)** 的 4~8 步加速（如融合了 DMAD 对抗分布匹配 + PDMD 投影分布匹配的蒸馏方案），核心全都是基于 **DMD 框架**。
+
+### Q3：Teacher 轨迹明明是弯的，Student 学 Teacher 为什么不会学弯？
+
+你问到了最精妙的地方：**“Teacher 如果轨迹交叉（导致边缘轨迹弯曲），Student 向 Teacher 学习（甚至用 ODE 初始化），难道不会跟着学出弯曲轨迹吗？怎么能独善其身？”**
+
+这里藏着 **DMD（分布匹配）** 和 **轨迹蒸馏（如 Progressive Distillation / Consistency Models）** 最本质的代差！
+
+1. 为什么 DMD 的 Student 不会被弯曲的 Teacher 带沟里去？
+
+   因为 **DMD 的核心 Loss（分布匹配梯度）根本就不看 Teacher 的中间轨迹！它只看终点分布！**
+
+2. CauVid里的ODE初始化，本质只是个热身阶段（Warm-up），让改造为因果掩码（Causal Mask）的 Student 适应新架构。为接下来的 DMD 训练里做准备。
+
+   原文的ODE Trajectory Initialization 其实有一点文字陷阱，包装话术（Academic Branding）。**只是用轨迹提供监督数据**：从 teacher 轨迹中取中间状态，以对应的最终干净结果为标签——CausVid 做的是这个。
+
+   > [!NOTE]
+   >
+   > - **ReFlow 是在“修路”**：它真正在乎几何轨迹，用 Teacher 锁定起终点后，硬画一条人工直线，逼着模型学会**沿着新直线匀速前进**。
+   > - **CausVid 的 ODE 初始化只是在“失明适应”**：它根本不在乎轨迹弯不弯，也不是在学怎么走路；它只是借用 Teacher 跑出来的现成中间状态当“练习题”，让刚被加上因果掩码（Causal Mask）的 Student **熟悉一下不同噪声程度下的数据分布，快速恢复“看见带噪图能还原出干净图 $x_0$”的基本去噪能力**，为后面的 DMD 蒸馏打个不崩盘的底子。
+
+
 
 ## 局限与疑问
 
