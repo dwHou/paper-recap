@@ -14,12 +14,17 @@
       .replace(/\[([^\]]+)\]\((\d{4}-\d{2}-\d{2}-([a-z0-9-]+)\.md)\)/g,
         (_match, label, _filename, slug) => `<a href="#paper=${slug}" data-paper-slug="${slug}">${label}</a>`)
       .replace(/\[([^\]]+)\]\((https:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
+      .replace(/\[([^\]]+)\]\(#([A-Za-z][A-Za-z0-9_-]{0,63})\)/g,
+        '<a href="#$2" data-note-anchor="$2">$1</a>')
       .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
       .replace(/~~(.+?)~~/g, "<del>$1</del>")
       .replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, "<em>$1</em>")
       // Only these legacy color tags become renderer-owned spans; other HTML stays escaped.
       .replace(/&lt;font color=&quot;(brown|blue)&quot;&gt;([\s\S]*?)&lt;\/font&gt;/gi,
-        (_match, color, content) => `<span class="note-color-${color.toLowerCase()}">${content}</span>`);
+        (_match, color, content) => `<span class="note-color-${color.toLowerCase()}">${content}</span>`)
+      // Preserve safe legacy named anchors without exposing arbitrary HTML.
+      .replace(/(?<!\\)&lt;a\s+name\s*=\s*(&quot;|&#039;)([A-Za-z][A-Za-z0-9_-]{0,63})\1\s*&gt;([\s\S]*?)&lt;\/a\s*&gt;/gi,
+        (_match, _quote, id, content) => `<span id="${id}">${content}</span>`);
   }
 
   function inlineMarkdown(text) {
@@ -555,7 +560,8 @@
 
       const heading = line.match(/^(#{1,6})\s+(.+)$/);
       if (heading) {
-        output.push(`<h${heading[1].length} data-outline-label="${escapeHtml(heading[2])}">${inlineMarkdown(heading[2])}</h${heading[1].length}>`);
+        const outlineText = heading[2].replace(/(?<!\\)<a\s+name\s*=\s*(["'])[A-Za-z][A-Za-z0-9_-]{0,63}\1\s*>([\s\S]*?)<\/a\s*>/gi, "$2");
+        output.push(`<h${heading[1].length} data-outline-label="${escapeHtml(outlineText)}">${inlineMarkdown(heading[2])}</h${heading[1].length}>`);
         index += 1;
         continue;
       }

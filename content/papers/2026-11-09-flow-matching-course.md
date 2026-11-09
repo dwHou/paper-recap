@@ -526,9 +526,31 @@ $u_t^{target}(x|z)$，（ $\substack{0 \le t \le 1 \\ x,z \in \mathbb{R}^d}$ ）
 
 ###### 2.2.2 例子——条件高斯向量场
 
-$u_t^{target}(x|z) = (\dot{\alpha_t} - \frac{\dot{\beta_t}}{\beta_t}\alpha_t)z+ \frac{\dot{\beta_t}}{\beta_t}x$， 
+$u_t^{target}(x|z) = (\dot{\alpha_t} - \frac{\dot{\beta_t}}{\beta_t}\alpha_t)z+ \frac{\dot{\beta_t}}{\beta_t}x$，
 
-> - $\dot{}$ 在物理中常用于表示时间导数，如速度$\dot{x}$，所以 $\dot{\alpha_t}=\frac{d}{dt}\alpha_t$
+> [!NOTE]
+>
+> 由高斯概率路径的采样式，在 $\beta_t \ne 0$ 时可将噪声 $\epsilon$ 表示为 $x$ 与 $z$：
+>
+> $$
+> x = \alpha_t z + \beta_t \epsilon,
+> \qquad
+> \epsilon = \frac{x - \alpha_t z}{\beta_t}.
+> $$
+>
+> 代入时间导数，得到条件向量场：
+>
+> $$
+> \begin{aligned}
+> u_t^{\text{target}}(x \mid z)
+>   &= \dot{\alpha}_t z + \dot{\beta}_t \epsilon \\
+>   &= \dot{\alpha}_t z + \dot{\beta}_t \left(\frac{x - \alpha_t z}{\beta_t}\right) \\
+>   &= \left(\dot{\alpha}_t - \frac{\dot{\beta}_t}{\beta_t}\alpha_t\right)z
+>      + \frac{\dot{\beta}_t}{\beta_t}x.
+> \end{aligned}
+> $$
+>
+> - 符号上方的圆点表示对时间求导，例如 $\dot{x}$ 表示速度，$\dot{\alpha}_t=\frac{d}{dt}\alpha_t$。
 > - 这个向量场很简单，就是 $x$ 和 $z$ 的某种加权组合。
 
 这个向量场能沿着高斯概率路径 $p_t(\cdot \mid z) = N(\alpha_t z, \beta_t^2 I_d)$ 从噪声到数据点。
@@ -619,9 +641,9 @@ $= -div(p_t u_t^{target})(x)$
 >
 > $\frac{d}{dt}p_t(x) = -div(p_tu_t)(x)$ 
 >
-> 的定义
+> 的定义，
 >
-> ，在推导过程中，得到的$u_t^{target}(x) = \int u_t^{target}(x|z) \frac{p_t(x|z)p_{data}(z)}{p_t(x)}dz$
+> 在推导过程中，得到的$u_t^{target}(x) = \int u_t^{target}(x|z) \frac{p_t(x|z)p_{data}(z)}{p_t(x)}dz$
 
 
 

@@ -80,6 +80,29 @@ test("Markdown input cannot inject HTML or script URLs", () => {
   assert.match(html, /href="https:\/\/example\.com"/);
 });
 
+test("legacy named anchors render as text targets for local note links", () => {
+  const note = fs.readFileSync(path.join(__dirname, "../content/papers/2026-11-09-flow-matching-course.md"), "utf8");
+  const html = renderMarkdown(note.split(/^---\s*$/m).slice(2).join("---"));
+  for (const id of ["algorithm1", "marginal", "theorem", "Theorem4", "algorithm4"]) {
+    assert.match(html, new RegExp('<span id="' + id + '">'));
+    assert.match(html, new RegExp('data-note-anchor="' + id + '"'));
+  }
+  assert.match(html, /<span id="marginal">“边际”<\/span>/);
+  assert.match(html, /data-outline-label=" 3\.2\.3 定理"/);
+  assert.doesNotMatch(html, /&lt;a name=/);
+  assert.doesNotMatch(renderMarkdown('`<a name="marginal">text</a>`'), /<span id="marginal">/);
+  assert.match(renderMarkdown('<a name="x" onclick="bad()">text</a> [bad](#x"onclick="bad)'), /&lt;a name=/);
+});
+
+test("named anchors accept safe legacy spacing and quotes without revealing tags", () => {
+  const html = renderMarkdown("###### <A NAME = 'Theorem4' > 3.2.3 定理</A >\n\n<a  name = \"marginal\" >**边际**</a>");
+  assert.match(html, /<h6 data-outline-label=" 3\.2\.3 定理"><span id="Theorem4"> 3\.2\.3 定理<\/span><\/h6>/);
+  assert.match(html, /<span id="marginal"><strong>边际<\/strong><\/span>/);
+  assert.doesNotMatch(html, /&lt;\/?a/i);
+  assert.match(renderMarkdown('\\<a name="escaped">原样</a>'), /\\&lt;a name=/);
+  assert.match(renderMarkdown('<a name="bad id">原样</a>'), /&lt;a name=/);
+});
+
 test("CausVid emphasis spans inline math without exposing Markdown markers", () => {
   const note = fs.readFileSync(path.join(__dirname, "../content/papers/2026-11-04-causvid.md"), "utf8");
   const source = note.split("\n").find((line) => line.includes("score 视角:"));

@@ -248,6 +248,13 @@
     body.before(outline);
   }
 
+  function scrollToNoteTarget(id) {
+    const target = document.getElementById(id);
+    if (!target || !elements.dialogContent.contains(target)) return;
+    const top = elements.dialog.scrollTop + target.getBoundingClientRect().top - elements.dialog.getBoundingClientRect().top - 22;
+    elements.dialog.scrollTo({ top: Math.max(0, top), behavior: "auto" });
+  }
+
   function outlineLabel(raw) {
     return raw.replace(/\$([^$]+)\$/g, (_match, math) => math
       .replace(/\\hat\s*\\epsilon/g, "ε̂")
@@ -347,11 +354,13 @@
     }
     const outlineButton = event.target.closest(".note-outline button[data-outline-target]");
     if (outlineButton) {
-      const heading = document.getElementById(outlineButton.dataset.outlineTarget);
-      if (heading && elements.dialogContent.contains(heading)) {
-        const top = elements.dialog.scrollTop + heading.getBoundingClientRect().top - elements.dialog.getBoundingClientRect().top - 22;
-        elements.dialog.scrollTo({ top: Math.max(0, top), behavior: "auto" });
-      }
+      scrollToNoteTarget(outlineButton.dataset.outlineTarget);
+      return;
+    }
+    const noteAnchor = event.target.closest("a[data-note-anchor]");
+    if (noteAnchor) {
+      event.preventDefault();
+      scrollToNoteTarget(noteAnchor.dataset.noteAnchor);
       return;
     }
     const noteLink = event.target.closest("a[data-paper-slug]");
