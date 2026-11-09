@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import hashlib
 import html
 import json
 import re
@@ -22,6 +23,7 @@ MEDIA_DIR = ROOT / "content" / "media"
 TAG_TAXONOMY = ROOT / "content" / "tag-taxonomy.json"
 SITE_CONFIG = ROOT / "site.config.json"
 DIST_DIR = ROOT / "dist"
+LOCAL_ASSETS = ("styles.css", "papers.js", "markdown.js", "diagrams.js", "app.js")
 MAX_MEDIA_BYTES = 3 * 1024 * 1024
 IMAGE_PATTERN = re.compile(
     r'^!\[([^\]\n]+)\]\((\.\./media/[a-z0-9-]+/[a-z0-9][a-z0-9._-]*\.(?:png|jpe?g|webp|gif))\s+"([^"\n]+)"\)\s*$',
@@ -281,19 +283,33 @@ def write_data(path: Path, papers: list[dict]) -> None:
     path.write_text(f"window.PAPER_RECAP_DATA = {json_text};\n", encoding="utf-8")
 
 
+def version_asset_urls(site_index: str, asset_dir: Path) -> str:
+    for filename in LOCAL_ASSETS:
+        reference = f'assets/{filename}"'
+        if site_index.count(reference) != 1:
+            raise ContentError(f"index.html 必须包含一个 {reference[:-1]} 引用")
+        try:
+            version = hashlib.sha256((asset_dir / filename).read_bytes()).hexdigest()[:16]
+        except OSError as exc:
+            raise ContentError(f"无法读取构建资源：{filename}") from exc
+        site_index = site_index.replace(reference, f'assets/{filename}?v={version}"')
+    return site_index
+
+
 def build(papers: list[dict]) -> None:
     site_index = render_site_index(datetime.now(timezone(timedelta(hours=8))).year)
     if DIST_DIR.exists():
         shutil.rmtree(DIST_DIR)
     (DIST_DIR / "assets").mkdir(parents=True)
-    (DIST_DIR / "index.html").write_text(site_index, encoding="utf-8")
     for filename in ("404.html", ".nojekyll"):
         shutil.copy2(ROOT / filename, DIST_DIR / filename)
-    for filename in ("styles.css", "markdown.js", "app.js"):
+    for filename in ("styles.css", "markdown.js", "diagrams.js", "app.js"):
         shutil.copy2(ROOT / "assets" / filename, DIST_DIR / "assets" / filename)
     if MEDIA_DIR.exists():
         shutil.copytree(MEDIA_DIR, DIST_DIR / "media")
     write_data(DIST_DIR / "assets" / "papers.js", papers)
+    site_index = version_asset_urls(site_index, DIST_DIR / "assets")
+    (DIST_DIR / "index.html").write_text(site_index, encoding="utf-8")
 
 
 def main() -> int:

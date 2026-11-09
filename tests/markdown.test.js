@@ -109,10 +109,23 @@ test("the allowed brown font tag colors note text and keeps Markdown formatting"
   assert.match(renderMarkdown('`<font color="brown">原样代码</font>`'), /<code>&lt;font color=&quot;brown&quot;&gt;原样代码&lt;\/font&gt;<\/code>/);
 });
 
+test("DDPM core formula combines outer bold, blue text, and adjacent brown math", () => {
+  const note = fs.readFileSync(path.join(__dirname, "../content/papers/2024-03-31-ddpm-derivation.md"), "utf8");
+  const source = note.split("\n").find((line) => line.includes('**<font color="blue">核心公式</font>**'));
+  assert.ok(source, "the reported core formula exists in the source note");
+  const html = renderMarkdown(source);
+  assert.match(html, /<strong><span class="note-color-blue">核心公式<\/span><\/strong>/);
+  assert.match(html, /<span class="note-color-brown">\$X_t =/);
+  assert.doesNotMatch(html, /&lt;font|&lt;\/font|\*\*/);
+  assert.match(renderMarkdown('<font color="blue">**重点**</font>'), /<span class="note-color-blue"><strong>重点<\/strong><\/span>/);
+  assert.match(renderMarkdown('`<font color="blue">代码</font>`'), /<code>&lt;font color=&quot;blue&quot;&gt;代码&lt;\/font&gt;<\/code>/);
+});
+
 test("other font colors and attributes cannot inject HTML", () => {
   for (const source of [
     '<font color="red">文字</font>',
     '<font color="brown" onclick="alert(1)">文字</font>',
+    '<font color="blue" onclick="alert(1)">文字</font>',
     '<font color="brown"><img src=x onerror=alert(1)></font>',
   ]) {
     const html = renderMarkdown(source);
@@ -203,4 +216,17 @@ test("unknown code fences remain escaped plain text", () => {
   const html = renderMarkdown("\x60\x60\x60unknown\n<script>alert(1)</script>\n\x60\x60\x60");
   assert.match(html, /<pre class="code-block"><code>&lt;script&gt;/);
   assert.doesNotMatch(html, /<script>|syntax-/);
+});
+
+test("Mermaid fences create diagram targets and retain escaped source", () => {
+  const fence = "\x60\x60\x60";
+  const source = 'flowchart LR\n  A["<b>输入</b>"] --> B["输出 $x_t$"]\n  %% <script>alert(1)</script>';
+  const html = renderMarkdown([fence + "mermaid", source, fence].join("\n"));
+  assert.match(html, /<figure class="mermaid-figure"><div class="mermaid-diagram"/);
+  assert.match(html, /<details class="mermaid-source"><summary>查看 Mermaid 源码<\/summary>/);
+  assert.match(html, /&lt;b&gt;输入&lt;\/b&gt;/);
+  assert.match(html, /&lt;script&gt;alert\(1\)&lt;\/script&gt;/);
+  assert.doesNotMatch(html, /<b>|<script>|<strong>/);
+  const multiple = renderMarkdown([fence + "mermaid", "flowchart LR", " A --> B", fence, "> ~~~MERMAID", "> sequenceDiagram", ">   A->>B: hello", "> ~~~"].join("\n"));
+  assert.equal((multiple.match(/class="mermaid-figure"/g) || []).length, 2);
 });

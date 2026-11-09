@@ -17,9 +17,9 @@
       .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
       .replace(/~~(.+?)~~/g, "<del>$1</del>")
       .replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, "<em>$1</em>")
-      // The note format uses this one legacy color tag; all other HTML stays escaped.
-      .replace(/&lt;font color=&quot;brown&quot;&gt;([\s\S]*?)&lt;\/font&gt;/gi,
-        '<span class="note-color-brown">$1</span>');
+      // Only these legacy color tags become renderer-owned spans; other HTML stays escaped.
+      .replace(/&lt;font color=&quot;(brown|blue)&quot;&gt;([\s\S]*?)&lt;\/font&gt;/gi,
+        (_match, color, content) => `<span class="note-color-${color.toLowerCase()}">${content}</span>`);
   }
 
   function inlineMarkdown(text) {
@@ -484,6 +484,13 @@
         }
         if (index < lines.length) index += 1;
         const source = code.join("\n");
+        if (language === "mermaid") {
+          output.push('<figure class="mermaid-figure"><div class="mermaid-diagram" aria-live="polite">正在绘制 Mermaid 图表…</div>'
+            + '<button class="mermaid-expand" type="button" aria-expanded="false">放大查看</button>'
+            + '<details class="mermaid-source"><summary>查看 Mermaid 源码</summary><pre class="code-block"><code>'
+            + escapeHtml(source) + '</code></pre></details></figure>');
+          continue;
+        }
         const highlighted = highlighter && source.length <= 100_000 ? highlighter[0](source) : escapeHtml(source);
         const label = highlighter ? ' data-language="' + highlighter[1] + '"' : "";
         output.push('<pre class="code-block' + (highlighter ? ' code-highlighted' : '') + '"' + label + '><code>' + highlighted + '</code></pre>');

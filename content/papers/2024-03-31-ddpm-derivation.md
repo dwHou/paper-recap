@@ -123,7 +123,11 @@ $$
 
 首先，$X_{t-1}$到$X_t$​的加噪公式是：
 
-**$X_t = \sqrt{1-\beta_t}X_{t-1} + \sqrt{\beta_t}Z_t,$**    $$Z_t \sim N(0,I)$$
+<font color="brown">$X_t = \sqrt{1-\beta_t}X_{t-1} + \sqrt{\beta_t}Z_t,$</font>    $Z_t \sim N(0,I)$
+
+> [!TIP]
+>
+> 或写作 $X_t = \sqrt{\alpha_t}X_{t-1} + \sqrt{\beta_t}Z_t$，也就是满足“方差保持”（Variance Preserving，VP）的设计。
 
 - 可想而知，$\beta$是逐渐变大的，因为干净图像加一点噪声就有明显变化，但后期已经被比较大的噪声扰动的图像必须加很大的噪声才能有明显变化。
 - T也要足够大，才能得到完全的噪声图。
@@ -140,7 +144,7 @@ $$
 
 >  [!IMPORTANT]
 >
-> ****核心公式**** **$X_t = \sqrt{\bar{\alpha_t}} X_0 + \sqrt{1 - \bar{\alpha_t}}Z$,  $\bar{\alpha_t}=\prod_{i=1}^{t}\alpha_i$**
+> **<font color="blue">核心公式</font>** <font color="brown">$X_t = \sqrt{\bar{\alpha_t}} X_0 + \sqrt{1 - \bar{\alpha_t}}Z$,  $\bar{\alpha_t}=\prod_{i=1}^{t}\alpha_i$</font>
 
 $X_t=f^\prime (X_0)$使得我们获取某一步的扩散数据变得非常方便。
 
@@ -176,7 +180,7 @@ $X_0 = \frac{X_t - \sqrt{1 - \bar{\alpha_t}}\tilde{Z}}{\sqrt{\bar{\alpha_t}}}$
 
 ###### 1-4 重建阶段（下）
 
-上面提到我们训练了一个UNet可以将加的噪声采样估计出来。写得再准确一点呢，这个UNet的输入还有t，因为不同的$X_t$，它的噪声强度是不一样的。所以实际上是一个**条件去噪过程**。
+上面提到我们训练了一个UNet可以将加的噪声采样估计出来。写得再准确一点呢，这个UNet的输入还有t，因为不同的$X_t$，它的噪声强度是不一样的。所以实际上是一个<font color="brown">条件去噪过程</font>。
 
 $\tilde{Z} = UNet(X_t, t)$
 
@@ -184,7 +188,7 @@ $\tilde{Z} = UNet(X_t, t)$
 
 $X_{t-1} = \frac{1}{\sqrt{\alpha_t}}(X_t - \sqrt{1-\alpha_t}Z_{t-1→t})$
 
-但可能因为这里的$Z_{t-1→t}$是$X_{t-1}$到$X_t$加的噪声，而我们训练时都是$X_0$到$X_t$直接加噪（更方便训练收敛）。UNet预测的是$\tilde{Z}_{0→t}$而不是$\tilde{Z}_{t-1→t}$，所以**reverse过程没法简单的进行公式逆变换。而是要推导构造出$\tilde{Z}_{0→t}$。**
+但可能因为这里的$Z_{t-1→t}$是$X_{t-1}$到$X_t$加的噪声，而我们训练时都是$X_0$到$X_t$直接加噪（更方便训练收敛）。UNet预测的是$\tilde{Z}_{0→t}$而不是$\tilde{Z}_{t-1→t}$，所以<font color="brown">reverse过程没法简单的进行公式逆变换。而是要推导构造出$\tilde{Z}_{0→t}$。</font>
 
 已知
 
@@ -216,9 +220,9 @@ $\therefore \mu=-\frac{B}{2A}, \sigma^2=\frac{1}{A}$
 
 其中$A=\frac{\alpha_t}{\beta_t}+\frac{1}{1-\bar{\alpha}_{t-1}}， B=- 2(\frac{\sqrt{\alpha_t}x_t}{\beta_t}+\frac{\sqrt{\bar{\alpha}_{t-1}}x_0}{1-\bar{\alpha}_{t-1}})$​
 
-**$\sigma^2 = \frac{1}{A} = 1/(\frac{\alpha_t-\alpha_t\bar{\alpha}_{t-1}+\beta_t}{\beta_t(1-\bar{\alpha}_{t-1})}) = \frac{\beta_t(1-\bar{\alpha}_{t-1})}{1-\bar{\alpha}_t}$​**
+<font color="brown">$\sigma^2 = \frac{1}{A} = 1/(\frac{\alpha_t-\alpha_t\bar{\alpha}_{t-1}+\beta_t}{\beta_t(1-\bar{\alpha}_{t-1})}) = \frac{\beta_t(1-\bar{\alpha}_{t-1})}{1-\bar{\alpha}_t}$​</font>
 
-> 我们可以发现**方差**实际是由$\alpha_t$、$\beta_t$组合而来，所以方差是确定的
+> 我们可以发现<font color="blue">方差</font>实际是由$\alpha_t$、$\beta_t$组合而来，所以方差是确定的
 
 $\mu = -\frac{B}{2A} = -\frac{\beta_t(1-\bar{\alpha}_{t-1})}{2(1-\bar{\alpha}_t)} * - 2(\frac{\sqrt{\alpha_t}x_t}{\beta_t}+\frac{\sqrt{\bar{\alpha}_{t-1}}x_0}{1-\bar{\alpha}_{t-1}}) = \sqrt{\alpha_t}\frac{1-\bar{\alpha}_{t-1}}{1-\bar{\alpha}_t}x_t + \sqrt{\bar{\alpha}_{t-1}}\frac{\beta_t}{1-\bar{\alpha}_t}x_0$
 
@@ -234,24 +238,24 @@ $= \frac{\alpha_t -\alpha_t\bar{\alpha}_{t-1} +\beta_t}{(1-\bar{\alpha}_t)\sqrt{
 
 $= \frac{1-\bar{\alpha}_t}{(1-\bar{\alpha}_t)\sqrt{\alpha}_t}X_t - \frac{\beta_t}{\sqrt{\alpha_t} \sqrt{1-\bar{\alpha}_t}}\tilde{Z}$
 
-**$= \frac{1}{\sqrt{\alpha}_t}(X_t - \frac{\beta_t}{\sqrt{1-\bar{\alpha}_t}}\tilde{Z})$**
+<font color="brown">$= \frac{1}{\sqrt{\alpha}_t}(X_t - \frac{\beta_t}{\sqrt{1-\bar{\alpha}_t}}\tilde{Z})$</font>
 
-> 我们发现**均值**经过推导可以得到$X_t$和$\tilde{Z}$​的一个线性组合，一个比较简洁的形式。
+> 我们发现<font color="blue">均值</font>经过推导可以得到$X_t$和$\tilde{Z}$​的一个线性组合，一个比较简洁的形式。
 
 总结一下，$q(X_{t-1}|X_t)$服从：
 
-**$q(X_{t-1}|X_t) \sim N(\frac{1}{\sqrt{\alpha}_t}(X_t - \frac{\beta_t}{\sqrt{1-\bar{\alpha}_t}}\tilde{Z}), \frac{\beta_t(1-\bar{\alpha}_{t-1})}{1-\bar{\alpha}_t})$​**
+<font color="brown">$q(X_{t-1}|X_t) \sim N(\frac{1}{\sqrt{\alpha}_t}(X_t - \frac{\beta_t}{\sqrt{1-\bar{\alpha}_t}}\tilde{Z}), \frac{\beta_t(1-\bar{\alpha}_{t-1})}{1-\bar{\alpha}_t})$​</font>
 
 即
 
-**$X_{t-1} = \frac{1}{\sqrt{\alpha}_t}(X_t - \frac{\beta_t}{\sqrt{1-\bar{\alpha}_t}}\tilde{Z}) +  \sqrt{\frac{\beta_t(1-\bar{\alpha}_{t-1})}{1-\bar{\alpha}_t}}Z$**
+<font color="brown">$X_{t-1} = \frac{1}{\sqrt{\alpha}_t}(X_t - \frac{\beta_t}{\sqrt{1-\bar{\alpha}_t}}\tilde{Z}) +  \sqrt{\frac{\beta_t(1-\bar{\alpha}_{t-1})}{1-\bar{\alpha}_t}}Z$</font>
 
 > 1. 方差的部分实际上是从标准正态分布采样的
 > 2. 最后$X_1$到$X_0$这步是不加后面一项噪声的。前面的$T-1$
 
 $\tilde{Z} = UNet(X_t, t)$，$Z \sim N(0, I)$
 
-> Tips：每一次$X_t$到$X_{t-1}$​的去噪过程，还要再加一个新的噪声。这也是希望在它整个reverse过程中增加一些不确定性。实际上整个reverse过程也是想模拟一个分子热运动的布朗运动的过程：**每一步既有确定性的部分，也有随机的扰动**。
+> Tips：每一次$X_t$到$X_{t-1}$的去噪过程，还要再加一个新的噪声。这也是希望在它整个reverse过程中增加一些不确定性。实际上整个reverse过程也是想模拟一个分子热运动的布朗运动的过程：<font color="blue">每一步既有确定性的部分，也有随机的扰动</font>。
 >
 > Q：为什么UNet预测噪声，而不是直接预测$X_{t-1}$
 >
@@ -279,7 +283,7 @@ $X_{t-1} = \frac{1}{\sqrt{\alpha}_t}(X_t - \frac{\beta_t}{\sqrt{1-\bar{\alpha}_t
 
 > - 推导过程的前置知识$X = \mu + \sigma Z \sim N(\mu, \sigma^2I)$​，也属于一种重参数技巧。
 > - 先验 & 后验，已知 & 未知 & 估计。
-> - $\mu = \sqrt{\alpha_t}\frac{1-\bar{\alpha}_{t-1}}{1-\bar{\alpha}_t}x_t + \sqrt{\bar{\alpha}_{t-1}}\frac{\beta_t}{1-\bar{\alpha}_t}x_0$​
+> - $\mu = \sqrt{\alpha_t}\frac{1-\bar{\alpha}_{t-1}}{1-\bar{\alpha}_t}x_t + \sqrt{\bar{\alpha}_{t-1}}\frac{\beta_t}{1-\bar{\alpha}_t}x_0$​（前面推导的中间结果，此时还没用$x_t$来代入$x_0$）
 >   - $t$越小，$\tilde{Z}_{0→t}$（对$x_0$​​的估计）是越来越准的。
 >   - $x_t$和$x_0$加权，$x_t$的权重越来越小，$x_o$​的估计越来越准，其权重也越来越大。
 >   - 可以把扩散过程理解为$x_T$，$\tilde{x}_{0@T}$，$\tilde{x}_{0@(T-1)}$，...，$\tilde{x}_{0@1}$的一个加权，只不过$x_T$​这个完全的噪声，它的权重非常小。
@@ -695,6 +699,31 @@ classifier guidance和classifier-free guidance
 ### Q1：为什么 U-Net 预测噪声，而不是直接预测上一时刻的图像？
 
 旧笔记提出了这一问。给定真图和随机时刻时，前向公式能直接构造噪声标签 $\epsilon$；其均方误差又对应原论文采用的简化变分目标。网络估计的是从 $x_0$ 构造 $x_t$ 的总体噪声，再由后验公式推得上一时刻的均值。直接预测上一时刻图像也是可能的参数化，并非“必然没有随机性”；随机性取决于采样算法和方差选择。
+
+### Q2：常见的$\alpha_t$、$\beta_t$设计有哪些？
+
+为了避免不同论文对$\alpha$、$\beta$的命名混淆，我们统一写成：
+$$
+x_t = a(t)x_{0} + b(t)\epsilon, \quad \epsilon \sim \mathcal{N}(0, \mathbf{I})
+$$
+这里 $a(t)$,$b(t)$表示从干净数据直接得到时刻 t 样本的幅度系数，参考[扩散模型加噪流派](2026-11-06-add-noise.md)。
+
+### Q3：既然SR3论文以连续噪声水平 $\gamma$ 为条件比离散时间步 $t$ 优势明显，为什么现在很多扩散模型代码看起来还是以离散 $t$ 为条件？
+
+**核心结论：**
+
+1. **在顶级模型和理论演进中，这个思想其实已经推广并成为绝对主流了**（以连续时间 $t \in [0, 1]$、对数信噪比 $\log\text{-SNR}$ 或噪声标准差 $\sigma$ 的形式）。
+2. **之所以觉得“现在大部分模型还是以离散 $t$ 为条件”，主要是因为 DDIM 等常微分方程（ODE）采样器的出现弱化了离散 $t$ 的劣势，以及 HuggingFace `diffusers` 和早期 Stable Diffusion 代码库的路径依赖（历史惯性）。**
+
+**具体原因剖析：**
+
+- **ODE 采样器“曲线救国”**：DDIM、DPM-Solver 等采样器证明了即使模型用离散整数 $t \in [1, 1000]$ 训练，推理时依然可以通过子序列跳步（如取 $[1, 50, 100, \dots]$）实现少步数加速；且正弦位置编码（Sinusoidal Embedding）本身是连续三角函数，天然支持高阶求解器传入浮点数 $t$ 进行插值，削弱了重写底层接口的迫切性。
+- **开源生态的路径依赖**：Stable Diffusion (v1.5 / SDXL) 继承了早期 OpenAI Guided Diffusion 的代码体系，习惯预定义长度为 $1000$ 的数组并用整数 $t$ 查表（Index Lookup）。庞大的下游生态（ControlNet、LoRA 等）将离散 $t$ 的接口标准焊死在了开源社区中。
+- 连续条件化已“换马甲”统治前沿模型：
+  - **噪声标准差 $\sigma$（EDM 框架）**：Karras 等人在 EDM 中指出离散 $t$ 无物理意义，直接以 $\frac{1}{4}\ln(\sigma)$ 为条件（被 SVD、Consistency Models 等采用）。
+  - **对数信噪比 $\log\text{-SNR}$（Google 体系）**：VDM 和 Imagen 将 $\gamma$ 改进为尺度感知更均匀的对数信噪比 $\lambda = \log(\frac{\gamma}{1-\gamma})$。
+  - **连续时间流 $t \in [0, 1]$（Flow Matching）**：在 SD3、FLUX.1、Sora 等新一代基于 Rectified Flow 的模型中，变量名虽叫 $t$，但已变成 $[0, 1]$ 上的连续浮点数（满足 $x_t = (1-t)x_0 + t\epsilon$），本质就是连续噪声水平条件化。
+- **原始均匀采样 $\gamma$ 的局限与改进**：后续研究发现 SR3 直接对 $\gamma \sim \text{Uniform}(0, 1)$ 均匀采样会导致训练算力分配不均（在极简的纯噪/无噪区间浪费算力）。现代主流做法是**保持网络输入的连续性（输入 $\ln\sigma$ 或连续 $t$），但在训练时改用对数正态分布（Log-normal）等非均匀分布进行采样**，将精力集中在中等噪声的关键语义生成阶段。
 
 ## 局限与疑问
 

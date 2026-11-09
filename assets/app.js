@@ -163,6 +163,7 @@
   function renderPapers() {
     const papers = filteredPapers();
     elements.grid.innerHTML = papers.map(paperCard).join("");
+    elements.grid.querySelectorAll(".one-liner").forEach((summary) => renderMath(summary));
     const selection = [...state.tags].map(tagLabel).join(" + ");
     elements.count.textContent = `显示 ${papers.length} / ${data.papers.length} 篇记录${selection ? ` · ${selection}` : " · 全部主题"}`;
     elements.reset.disabled = !state.tags.size && !state.query;
@@ -209,6 +210,7 @@
     addNoteOutline();
     if (!elements.dialog.open) elements.dialog.showModal();
     syncDialogScrollLock();
+    void window.PaperRecapDiagrams.renderMermaid(elements.dialogContent);
     if (updateHash) history.pushState({ slug }, "", `#paper=${encodeURIComponent(slug)}`);
   }
 
@@ -297,6 +299,7 @@
       const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
       document.documentElement.dataset.theme = next;
       localStorage.setItem("paper-recap-theme", next);
+      if (elements.dialog.open) void window.PaperRecapDiagrams.renderMermaid(elements.dialogContent);
     });
   }
 
@@ -335,6 +338,13 @@
     if (location.hash.startsWith("#paper=")) closePaper();
   });
   elements.dialogContent.addEventListener("click", (event) => {
+    const diagramButton = event.target.closest(".mermaid-expand");
+    if (diagramButton) {
+      const expanded = diagramButton.closest(".mermaid-figure").classList.toggle("is-expanded");
+      diagramButton.setAttribute("aria-expanded", String(expanded));
+      diagramButton.textContent = expanded ? "适应宽度" : "放大查看";
+      return;
+    }
     const outlineButton = event.target.closest(".note-outline button[data-outline-target]");
     if (outlineButton) {
       const heading = document.getElementById(outlineButton.dataset.outlineTarget);
