@@ -116,7 +116,7 @@ $\frac{d}{dt}\psi_t(x_0) = u_t(\psi_t(x_0))$
 - <font color="blue">轨迹是ODE的解。</font>
 - <font color="blue">流则是各种初始条件的轨迹的集合。</font>
 
-<img src="assets/image-20250714163807435.png" alt="image-20250714163807435" style="zoom:30%;" />
+![红色轨迹网格与蓝色向量场箭头示意图](../media/flow-matching-course/image-20250714163807435.png "红色轨迹网格与蓝色向量场箭头示意图。来源：原 FlowDiffusion 学习笔记；原图许可待核实。")
 
 > 图示红色网格是轨迹，蓝色箭头是向量场。
 
@@ -164,7 +164,7 @@ ODEs 解的存在性与唯一性定理
 
 $y$轴表示初始条件。轨迹呈指数级趋近于零。
 
-<img src="assets/image-20250713225445411.png" alt="image-20250713225445411" style="zoom:50%;" />
+![不同初值的线性常微分方程轨迹逐渐收敛到零](../media/flow-matching-course/image-20250713225445411.png "不同初值的线性常微分方程轨迹逐渐收敛到零。来源：原 FlowDiffusion 学习笔记；原图许可待核实。")
 
 ###### 2.1.4 ODE数值模拟——欧拉法
 
@@ -216,13 +216,13 @@ $y$轴表示初始条件。轨迹呈指数级趋近于零。
 
    $X_1 \sim p_{data}$
 
-<img src="assets/image-20250714163036782-2481846.png" alt="image-20250714163036782" style="zoom:30%;" />
+![初始噪声分布到目标数据分布的流模型示意图](../media/flow-matching-course/image-20250714163036782-2481846.png "初始噪声分布到目标数据分布的流模型示意图。来源：原 FlowDiffusion 学习笔记；原图许可待核实。")
 
-<img src="assets/image-20250714163319333.png" alt="image-20250714163319333" style="zoom:30%;" />
+![流模型中样本和概率分布随时间演化的网格示意图](../media/flow-matching-course/image-20250714163319333.png "流模型中样本和概率分布随时间演化的网格示意图。来源：原 FlowDiffusion 学习笔记；原图许可待核实。")
 
 后面我们会学到，这幅图描述就是用高斯概率路径的边际向量场进行基于欧拉法的ODE数值模拟。
 
-<img src="assets/image-20250714163356536.png" alt="image-20250714163356536" style="zoom:30%;" />
+![流模型将初始分布变换为双峰目标分布的示意图](../media/flow-matching-course/image-20250714163356536.png "流模型将初始分布变换为双峰目标分布的示意图。来源：原 FlowDiffusion 学习笔记；原图许可待核实。")
 
 #### 2.2 扩散模型
 
@@ -334,7 +334,7 @@ Ornstein–Uhlenbeck (OU) 过程是一个**均值回复型的随机过程**，�
 
 $dX_t = -\theta X_t dt + \sigma dW_t$
 
-<img src="assets/image-20250714215209895.png" alt="image-20250714215209895" style="zoom:50%;" />
+![扩散系数增大时奥恩斯坦乌伦贝克过程的随机轨迹对比](../media/flow-matching-course/image-20250714215209895.png "扩散系数增大时奥恩斯坦乌伦贝克过程的随机轨迹对比。来源：原 FlowDiffusion 学习笔记；原图许可待核实。")
 
 ###### 2.2.5 生成模型
 
@@ -364,7 +364,7 @@ $dX_t = -\theta X_t dt + \sigma dW_t$
 
 回顾：
 
-<img src="assets/image-20250715133905048.png" alt="image-20250715133905048" style="zoom:50%;" />
+![流模型与扩散模型的初始分布及采样方程对比](../media/flow-matching-course/image-20250715133905048.png "流模型与扩散模型的初始分布及采样方程对比。来源：原 FlowDiffusion 学习笔记；原图许可待核实。")
 
 ### 第一节 训练模型
 
@@ -390,7 +390,7 @@ $\underbrace{X_0 \sim p_{init}}_{\text{从一个初始分布开始，}}$，$\und
 
 你不必理解推导过程，但一定要理解以下公式：
 
-<img src="assets/image-20250715141504078.png" alt="image-20250715141504078" style="zoom:50%;" />
+![条件与边际概率路径向量场及得分函数的六个对象](../media/flow-matching-course/image-20250715141504078.png "条件与边际概率路径向量场及得分函数的六个对象。来源：原 FlowDiffusion 学习笔记；原图许可待核实。")
 
 三个条件对象，三个边际对象的公式：
 
@@ -452,7 +452,7 @@ $\alpha_t$ 和 $\beta_t$ 是所谓的噪声调度器（noise schedulers）
 
 如下图可视化：
 
-<img src="assets/image-20250715144434634.png" alt="image-20250715144434634" style="zoom:35%;" />
+![条件高斯概率路径逐步收缩到指定数据点](../media/flow-matching-course/image-20250715144434634.png "条件高斯概率路径逐步收缩到指定数据点。来源：原 FlowDiffusion 学习笔记；原图许可待核实。")
 
 ###### 2.1.5 边际概率路径 $p_t$
 
@@ -470,7 +470,7 @@ $z \sim p_{data}, \; x \sim p_t(\cdot \mid z) \Rightarrow \underbrace{x \sim p_t
 
 如下图可视化：
 
-<img src="assets/image-20250715151652997.png" alt="image-20250715151652997" style="zoom:50%;" />
+![边际概率路径从高斯分布演化到棋盘格数据分布](../media/flow-matching-course/image-20250715151652997.png "边际概率路径从高斯分布演化到棋盘格数据分布。来源：原 FlowDiffusion 学习笔记；原图许可待核实。")
 
 ###### 2.1.6 概率路径小结
 
@@ -535,9 +535,9 @@ $u_t^{target}(x|z) = (\dot{\alpha_t} - \frac{\dot{\beta_t}}{\beta_t}\alpha_t)z+ 
 
 可视化为下图：
 
-<img src="assets/image-20250715164951644.png" alt="image-20250715164951644" style="zoom:50%;" />
+![高斯分布附近的条件向量场箭头示意图](../media/flow-matching-course/image-20250715164951644.png "高斯分布附近的条件向量场箭头示意图。来源：原 FlowDiffusion 学习笔记；原图许可待核实。")
 
-<img src="assets/image-20250715164934805.png" alt="image-20250715164934805" style="zoom:50%;" />
+![条件高斯向量场使分布向目标点收缩的示意图](../media/flow-matching-course/image-20250715164934805.png "条件高斯向量场使分布向目标点收缩的示意图。来源：原 FlowDiffusion 学习笔记；原图许可待核实。")
 
 ###### 2.2.3 边际向量场 & 定理（边缘化技巧）
 
@@ -565,7 +565,7 @@ $\frac{p_t(x|z)p_{data}(z)}{p_t(x)}$ 这个比率，本质上是给定$x$，采�
 
 $第一行 \xrightarrow{ 边缘化 }第二行$：
 
-<img src="assets/image-20250715210906306.png" alt="image-20250715210906306" style="zoom:50%;" />
+![边际化后真实分布与常微分方程样本轨迹的对比](../media/flow-matching-course/image-20250715210906306.png "边际化后真实分布与常微分方程样本轨迹的对比。来源：原 FlowDiffusion 学习笔记；原图许可待核实。")
 
 ###### 2.2.4 连续性方程（延伸知识，用于证明边际向量场的边缘化）
 
@@ -585,7 +585,7 @@ $p_t$在$x$处的时间导数 是由 $p_t u_t$（$流量=浓度\times速度$）�
 >
 > 换句话说，<font color="blue"> **流出越多，密度下降越快**。</font>
 
-<img src="assets/image-20250715220122401.png" alt="image-20250715220122401" style="zoom:50%;" />
+![连续性方程中区域流入流出与概率密度变化示意图](../media/flow-matching-course/image-20250715220122401.png "连续性方程中区域流入流出与概率密度变化示意图。来源：原 FlowDiffusion 学习笔记；原图许可待核实。")
 
 > [!CAUTION]
 >
@@ -697,11 +697,11 @@ $ \Rightarrow X_t \sim p_t \quad (0 \le t \le 1) \Rightarrow X_1 \sim p_{data}$
 
 模型训练 就是 训练 $u_t^{target}$ 这个对象，或$\nabla \log p_t(x)$这个对象。
 
-<img src="assets/image-20250715141504078.png" alt="image-20250715141504078" style="zoom:50%;" />
+![条件与边际概率路径向量场及得分函数的六个对象](../media/flow-matching-course/image-20250715141504078.png "条件与边际概率路径向量场及得分函数的六个对象。来源：原 FlowDiffusion 学习笔记；原图许可待核实。")
 
-<img src="assets/image-20250715151929759.png" alt="image-20250715151929759" style="zoom:50%;" />
+![条件概率路径向量场和得分函数的定义性质与高斯示例](../media/flow-matching-course/image-20250715151929759.png "条件概率路径向量场和得分函数的定义性质与高斯示例。来源：原 FlowDiffusion 学习笔记；原图许可待核实。")
 
-<img src="assets/image-20250715151949401.png" alt="image-20250715151949401" style="zoom:50%;" />
+![边际概率路径向量场和得分函数的定义与积分公式](../media/flow-matching-course/image-20250715151949401.png "边际概率路径向量场和得分函数的定义与积分公式。来源：原 FlowDiffusion 学习笔记；原图许可待核实。")
 
 
 
@@ -709,11 +709,11 @@ $ \Rightarrow X_t \sim p_t \quad (0 \le t \le 1) \Rightarrow X_1 \sim p_{data}$
 
 回顾：
 
-<img src="assets/image-20250715133905048.png" alt="image-20250715133905048" style="zoom:50%;" />
+![流模型与扩散模型的初始分布及采样方程对比](../media/flow-matching-course/image-20250715133905048.png "流模型与扩散模型的初始分布及采样方程对比。来源：原 FlowDiffusion 学习笔记；原图许可待核实。")
 
-<img src="assets/image-20250715151929759.png" alt="image-20250715151929759" style="zoom:50%;" />
+![条件概率路径向量场和得分函数的定义性质与高斯示例](../media/flow-matching-course/image-20250715151929759.png "条件概率路径向量场和得分函数的定义性质与高斯示例。来源：原 FlowDiffusion 学习笔记；原图许可待核实。")
 
-<img src="assets/image-20250715151949401.png" alt="image-20250715151949401" style="zoom:50%;" />
+![边际概率路径向量场和得分函数的定义与积分公式](../media/flow-matching-course/image-20250715151949401.png "边际概率路径向量场和得分函数的定义与积分公式。来源：原 FlowDiffusion 学习笔记；原图许可待核实。")
 
 >  [!NOTE]
 >
@@ -732,7 +732,7 @@ $ \Rightarrow X_t \sim p_t \quad (0 \le t \le 1) \Rightarrow X_1 \sim p_{data}$
 
 这将是训练算法，用于学习这两个对象。
 
-<img src="assets/image-20250716120032690.png" alt="image-20250716120032690" style="zoom:50%;" />
+![从边际向量场与得分函数构造流匹配和得分匹配训练算法](../media/flow-matching-course/image-20250716120032690.png "从边际向量场与得分函数构造流匹配和得分匹配训练算法。来源：原 FlowDiffusion 学习笔记；原图许可待核实。")
 
 #### 3.2 流匹配
 
@@ -780,7 +780,7 @@ $t \sim \mathcal{U}(0, 1)$，$z \sim p_{data}$，$x \sim p_t(\cdot \mid z)$
 >
 > $C$ 是与$\theta$无关的常数，不会影响梯度下降方向。从 **优化角度**来看，优化 $L_{cfm}(\theta)$ 与优化 $L_{fm}(\theta)$ 是等价的
 
-<img src="assets/image-20250716142449141.png" alt="image-20250716142449141" style="zoom:35%;" />
+![条件流匹配损失与流匹配损失相差常数的曲线图](../media/flow-matching-course/image-20250716142449141.png "条件流匹配损失与流匹配损失相差常数的曲线图。来源：原 FlowDiffusion 学习笔记；原图许可待核实。")
 
 $\theta$ 的值不重要，我们不关心神经网络具体参数值什么，重要的是最小化器（Minimizer），我们记为 $\theta^*$。
 
@@ -855,7 +855,7 @@ $\therefore L_{cfm} (\theta)= \mathbb{E}[\left \|  u_t^\theta(tz + (1 - t)\varep
 
 > 非常简单吧，无法想象一个更简单的训练算法了。
 
-<img src="assets/image-20250719225950090.png" alt="image-20250719225950090" style="zoom:35%;" />
+![高斯概率路径将噪声与数据点线性插值的示意图](../media/flow-matching-course/image-20250719225950090.png "高斯概率路径将噪声与数据点线性插值的示意图。来源：原 FlowDiffusion 学习笔记；原图许可待核实。")
 
 ###### 3.2.6 算法（OT）
 
@@ -1114,7 +1114,7 @@ $\lambda_1 z + \lambda_2 x$，$\lambda_1' z + \lambda_2' x$
 
 经过代数，就能得出它们能相互转换：
 
-<img src="assets/image-20250720153027234.png" alt="image-20250720153027234" style="zoom:50%;" />
+![高斯路径中目标向量场与得分函数的转换公式](../media/flow-matching-course/image-20250720153027234.png "高斯路径中目标向量场与得分函数的转换公式。来源：原 FlowDiffusion 学习笔记；原图许可待核实。")
 
 训练后的边际向量场 可以转换为 得分网络，反之亦然。
 
@@ -1141,7 +1141,7 @@ $\lambda_1 z + \lambda_2 x$，$\lambda_1' z + \lambda_2' x$
 
 在图像空间、音频空间以及科学领域，许多时候，你的初始分布本身就很有意义，例如：
 
-<img src="assets/image-20250720160712054.png" alt="image-20250720160712054" style="zoom:50%;" />
+![从任意有意义的初始分布转换到目标分布的应用示例](../media/flow-matching-course/image-20250720160712054.png "从任意有意义的初始分布转换到目标分布的应用示例。来源：原 FlowDiffusion 学习笔记，图中署名 Michael Albergo；原图许可待核实。")
 
 > 我觉得可以预测转换域的东西，定义清楚这个转换，是光流？是高频残差？等等。 有意义的输入则作为参考信息。
 
@@ -1161,7 +1161,7 @@ $\lambda_1 z + \lambda_2 x$，$\lambda_1' z + \lambda_2' x$
 
 有条件 也可以 称作 有引导（Guided）
 
-<img src="assets/image-20250721213103970.png" alt="image-20250721213103970" style="zoom:50%;" />
+![无引导生成与有引导生成的概率路径和目标函数对比](../media/flow-matching-course/image-20250721213103970.png "无引导生成与有引导生成的概率路径和目标函数对比。来源：原 FlowDiffusion 学习笔记；原图许可待核实。")
 
 ###### 4.1.1 有引导的条件匹配目标函数 $\mathcal{L}_{cfm}^{guided}$
 
@@ -1297,9 +1297,9 @@ $\square = (z, y) \sim p_{data}(z, y), \textcolor{red}{\text{with prob.} \eta , 
 3. 初始化 $X_0 \sim p_{init}$
 4. 从$t=0$ 到 $t=1$ 模拟 $dX_t = [(1-w)u_t^{\theta}(X_t \mid \emptyset) + w u_t^{\theta}(X_t \mid y)]dt$ 
 
-<img src="assets/image-20250722223728725.png" alt="image-20250722223728725" style="zoom:50%;" />
+![不同无分类器引导权重下生成的手写数字对比](../media/flow-matching-course/image-20250722223728725.png "不同无分类器引导权重下生成的手写数字对比。来源：原 FlowDiffusion 学习笔记；原图许可待核实。")
 
-<img src="assets/image-20250722223949275.png" alt="image-20250722223949275" style="zoom:50%;" />
+![不同无分类器引导权重下生成的柯基犬图片对比](../media/flow-matching-course/image-20250722223949275.png "不同无分类器引导权重下生成的柯基犬图片对比。来源：原 FlowDiffusion 学习笔记；原图许可待核实。")
 
 #### 4.2 图像生成的网络架构考量
 
@@ -1327,7 +1327,7 @@ Adjoint Matching：流匹配模型的奖励微调
 
 动机：在扩散模型（diffusion）和流模型（flow models）上进行 RLHF 的最佳方式是什么？
 
-<img src="assets/image-20250727185916596.png" alt="image-20250727185916596" style="zoom:50%;" />
+![预训练流匹配模型与三种奖励微调轨迹对比](../media/flow-matching-course/image-20250727185916596.png "预训练流匹配模型与三种奖励微调轨迹对比。来源：原 FlowDiffusion 学习笔记；原图许可待核实。")
 
 - **预训练的扩散模型或流匹配模型**，用于生成分布 $p^{\text{base}}$
 - **奖励模型 $r(x)$**，通过人工偏好训练，或通过编码条件采样，定义为：
