@@ -1428,6 +1428,40 @@ Adjoint Matching：流匹配模型的奖励微调
 
 
 
+### Q4：CFG 的推导里从得分函数的加权式，为什么能得到速度场的加权式？得分与速度场不是不同的量吗？
+
+**答：是两种不同的量，原笔记中间省略了一段转换。** **在常见的高斯概率路径下，速度场 $u_t(x)$ 与得分函数 $\nabla_x \log p_t(x)$ 之间存在严格的仿射（线性加常数）映射关系。**
+$$
+\begin{aligned}
+s_z&:=\nabla_x\log p_t(x\mid z)=-\frac{x-\alpha_t z}{\beta_t^2},\\
+u_z&:=u_t^{target}(x\mid z)=\dot\alpha_t z+\frac{\dot\beta_t}{\beta_t}(x-\alpha_t z).
+\end{aligned}
+$$
+
+关键一步（消元）：$z = \frac{1}{\alpha_t}(x + \beta_t^2 s_z)$
+$$
+\begin{aligned}
+u_t(x \mid z) &= \frac{\dot{\alpha}_t}{\alpha_t}\big(x + \beta_t^2 s_z \big) - \dot{\beta}_t{\beta_t} s_z \\
+&= \underbrace{\beta_t^2 \left( \frac{\dot{\alpha}_t}{\alpha_t} - \frac{\dot{\beta}_t}{\beta_t} \right)}_{a_t} s_z + \underbrace{\frac{\dot{\alpha}_t}{\alpha_t}}_{b_t} x
+\end{aligned}
+$$
+由于系数 $a_t, b_t$ 与 $z$ 无关。对高斯概率路径，速度场与 score 满足相同的仿射关系：
+$$
+u_t^{\mathrm{target}}(x)=a_t\nabla_x\log p_t(x)+b_t x, \\
+u_t^{\mathrm{target}}(x\mid y)=a_t\nabla_x\log p_t(x\mid y)+b_t x.
+$$
+将 CFG 引导后的 score 代入，利用权重之和为 1，即得
+$$
+\begin{aligned}
+\tilde u_t(x\mid y)
+&=a_t\big[(1-w)\nabla_x\log p_t(x)+w\nabla_x\log p_t(x\mid y)\big]+b_t x\\
+&=(1-w)\big[a_t\nabla_x\log p_t(x)+b_t x\big]
++w\big[a_t\nabla_x\log p_t(x\mid y)+b_t x\big]\\
+&=(1-w)u_t^{\mathrm{target}}(x)+wu_t^{\mathrm{target}}(x\mid y).
+\end{aligned}
+$$
+
+
 ## 局限与疑问
 
 - 论文已知局限
