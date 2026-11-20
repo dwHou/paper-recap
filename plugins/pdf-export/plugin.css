@@ -1,0 +1,16 @@
+.pdf-export-actions { position: absolute; top: 22px; right: 76px; display: flex; align-items: center; gap: 10px; height: 38px; }
+.pdf-export-download { display: inline-flex; align-items: center; min-height: 34px; padding: 5px 12px; border: 1px solid var(--line); border-radius: 99px; color: var(--ink); background: var(--paper); font-size: 0.76rem; text-decoration: none; }
+.pdf-export-download:hover { border-color: var(--accent); color: var(--accent); }
+.pdf-export-download { font: inherit; font-size: 0.76rem; cursor: pointer; }
+.pdf-export-download:disabled { cursor: wait; opacity: 0.65; }
+.pdf-export-status { position: absolute; top: 40px; right: 0; width: min(300px, calc(100vw - 90px)); margin: 0; color: var(--accent); font-size: 0.75rem; text-align: right; }
+.pdf-export-frame { position: fixed; top: 0; left: -20000px; width: 1280px; height: 900px; border: 0; }
+.pdf-export-policy > summary { padding: 4px; color: var(--muted); font-size: 0.74rem; cursor: pointer; list-style: none; }
+.pdf-export-policy > summary::-webkit-details-marker { display: none; }
+.pdf-export-policy > div { position: absolute; z-index: 2; top: 44px; right: 0; width: min(310px, calc(100vw - 90px)); padding: 16px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); box-shadow: var(--shadow); font-size: 0.78rem; line-height: 1.6; }
+.pdf-export-policy p { margin: 0; }
+.pdf-export-policy ul { margin: 10px 0 0; padding-left: 18px; }
+.pdf-export-download:focus-visible, .pdf-export-policy > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+@media (max-width: 760px) {
+  #paper-dialog .paper-detail:has(> .pdf-export-actions) { padding-top: 76px; }
+}

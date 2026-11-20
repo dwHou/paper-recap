@@ -19,6 +19,7 @@ Paper Recap 是一个零前端构建依赖的静态站点：每篇论文是一�
 - 使用 KaTeX 渲染行内公式 `$...$` 和独立公式 `$$...$$`。
 - 支持响应式论文图片、图注、懒加载和点击放大。
 - 明暗主题、移动端布局和论文详情弹窗。
+- 可移除的 PDF 导出插件：在线点击时导出当前笔记，使用浏览器原生「另存为 PDF」。
 - 构建时自动校验元数据、章节、公式分隔符和图片路径。
 - 推送 `main` 后由 GitHub Actions 自动部署到 GitHub Pages。
 - 内置 `update-paper-recap` Codex skill，可把零散笔记或 Agent 对话整理并发布。
@@ -35,6 +36,8 @@ python3 -m http.server 8000 --directory dist
 ```
 
 浏览器打开 <http://localhost:8000>。
+
+构建会自动接入 `plugins/pdf-export/` 中的可选导出功能，只复制插件资源，不预生成 PDF。打开笔记后点击「导出 PDF」即可按需保存。使用 `--skip-plugins` 或删除插件目录可只构建基础网站，详见 [插件说明](plugins/pdf-export/README.md)。
 
 > 公式组件从 jsDelivr 加载 KaTeX，因此本地预览公式时需要网络连接。论文内容和站点构建本身不依赖外部包。
 

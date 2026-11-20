@@ -20,6 +20,7 @@ Paper Recap is a dependency-free static site workflow. Each paper is stored as a
 - KaTeX rendering for inline `$...$` and display `$$...$$` equations.
 - Responsive figures with captions, lazy loading, and click-to-zoom.
 - Light and dark themes, mobile layouts, and paper detail dialogs.
+- An optional PDF plugin that exports the open note on demand using the browser's native Save as PDF dialog.
 - Build-time validation for metadata, required sections, math delimiters, and media paths.
 - Automatic GitHub Pages deployment on every push to `main`.
 - A bundled `update-paper-recap` Codex skill for turning rough notes or agent conversations into published recaps.
@@ -36,6 +37,8 @@ python3 -m http.server 8000 --directory dist
 ```
 
 Open <http://localhost:8000>.
+
+The build automatically packages the optional `plugins/pdf-export/` assets; it does not pre-generate PDFs. Open a note and click **导出 PDF** to save it on demand. Use `--skip-plugins` or remove the plugin directory for the base site. See the [plugin guide](plugins/pdf-export/README.md).
 
 > The site loads KaTeX from jsDelivr, so local equation rendering requires an internet connection. Content validation and site generation remain fully dependency-free.
 

@@ -1,0 +1,29 @@
+/* Loaded only in the disposable export page; the normal website never loads it. */
+@page { size: 820px 1160px; margin: 24px 0; }
+html.pdf-export-document,
+.pdf-export-document body { width: 820px; min-width: 820px; margin: 0; padding: 0; overflow: visible; background: var(--paper); }
+.pdf-export-document { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+.pdf-export-document *, .pdf-export-document *::before, .pdf-export-document *::after { animation: none !important; transition: none !important; }
+.pdf-export-document .paper-detail { width: 820px; min-height: 0; padding: 76px; }
+.pdf-export-document #dialog-title { font-size: 64px; }
+.pdf-export-document .dialog-close,
+.pdf-export-document .pdf-export-actions,
+.pdf-export-document .note-outline,
+.pdf-export-document .mermaid-expand,
+.pdf-export-document .mermaid-source { display: none !important; }
+.pdf-export-document .detail-tags .tag-button { cursor: default; }
+.pdf-export-document .detail-body pre.code-block { overflow: visible; white-space: pre-wrap; overflow-wrap: anywhere; }
+.pdf-export-document .detail-body pre.code-block code { white-space: inherit; overflow-wrap: inherit; }
+.pdf-export-document .table-scroll,
+.pdf-export-document .math-block,
+.pdf-export-document .katex-display,
+.pdf-export-document .mermaid-diagram { overflow: visible; }
+.pdf-export-document .mermaid-figure.is-expanded .mermaid-diagram > svg { width: 100%; max-width: 100% !important; }
+.pdf-export-document .paper-image-button { cursor: default; }
+.pdf-export-document .paper-image-button img { transform: none; }
+.pdf-export-document .detail-body :is(h2, h3, h4, h5, h6) { break-after: avoid; }
+.pdf-export-document :is(.paper-figure, .mermaid-figure, .math-block, .pdf-export-embed, tr) { break-inside: avoid; }
+.pdf-export-document :is(p, li) { orphans: 3; widows: 3; }
+.pdf-export-document .pdf-export-embed { margin: 26px 0; padding: 18px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper-deep); }
+.pdf-export-document .pdf-export-embed p { margin: 0 0 8px; }
+.pdf-export-document .pdf-export-embed a { color: var(--accent); overflow-wrap: anywhere; }

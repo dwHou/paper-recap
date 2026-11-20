@@ -8,8 +8,10 @@ import ast
 import hashlib
 import html
 import json
+import os
 import re
 import shutil
+import subprocess
 import sys
 import unicodedata
 from datetime import datetime, timedelta, timezone
@@ -40,6 +42,10 @@ REQUIRED_SECTIONS = (
 
 
 class ContentError(ValueError):
+    pass
+
+
+class PluginError(RuntimeError):
     pass
 
 
@@ -312,16 +318,42 @@ def build(papers: list[dict]) -> None:
     (DIST_DIR / "index.html").write_text(site_index, encoding="utf-8")
 
 
+def run_pdf_export_plugin() -> None:
+    enabled = os.environ.get("ENABLE_PDF_EXPORT", "true").strip().lower()
+    if enabled not in {"", "true", "false"}:
+        raise PluginError("ENABLE_PDF_EXPORT 必须为 true 或 false")
+    if enabled == "false":
+        return
+    entry = ROOT / "plugins" / "pdf-export" / "build.py"
+    try:
+        for candidate in (ROOT / "plugins", entry.parent, entry):
+            if candidate.is_symlink():
+                raise PluginError("PDF 插件路径不允许符号链接")
+        if not entry.exists():
+            return
+        if not entry.is_file() or not entry.resolve().is_relative_to(ROOT.resolve()):
+            raise PluginError("PDF 插件入口无效")
+        subprocess.run([sys.executable, str(entry)], cwd=ROOT, check=True)
+    except (OSError, subprocess.CalledProcessError) as exc:
+        raise PluginError("无法接入 PDF 插件；请检查上方错误，或使用 --skip-plugins 构建基础网站") from exc
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true", help="仅校验内容，不创建 dist")
+    parser.add_argument("--skip-plugins", action="store_true", help="仅构建基础网站，跳过可选插件")
     args = parser.parse_args()
     try:
         papers = load_papers()
         if not args.check:
             build(papers)
+            if not args.skip_plugins:
+                run_pdf_export_plugin()
     except ContentError as exc:
         print(f"内容校验失败：\n{exc}", file=sys.stderr)
+        return 1
+    except PluginError as exc:
+        print(f"插件接入失败：{exc}", file=sys.stderr)
         return 1
     action = "校验通过" if args.check else "构建完成"
     print(f"{action}：{len(papers)} 篇阅读记录")
